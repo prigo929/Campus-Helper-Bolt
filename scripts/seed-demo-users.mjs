@@ -57,6 +57,33 @@ const demos = [
     year: 'Sophomore',
     bio: 'Demo account for testing forum flow.',
   },
+  {
+    email: 'avery@mit.test',
+    password: 'CampusDemo4!',
+    full_name: 'Avery Lin',
+    university: 'Massachusetts Institute of Technology',
+    major: 'Electrical Engineering',
+    year: 'Sophomore',
+    bio: 'Demo from MIT for tech-focused listings.',
+  },
+  {
+    email: 'sofia@stanford.test',
+    password: 'CampusDemo5!',
+    full_name: 'Sofia Ramirez',
+    university: 'Stanford University',
+    major: 'Human Biology',
+    year: 'Junior',
+    bio: 'Demo from Stanford for marketplace and forum testing.',
+  },
+  {
+    email: 'ethan@harvard.test',
+    password: 'CampusDemo6!',
+    full_name: 'Ethan Brooks',
+    university: 'Harvard University',
+    major: 'Economics',
+    year: 'Senior',
+    bio: 'Demo from Harvard for jobs and posts.',
+  },
 ];
 
 const jobs = [
@@ -90,6 +117,36 @@ const jobs = [
     status: 'open',
     user_email: 'liam@campushelper.test',
   },
+  {
+    title: 'Robotics Lab Helper',
+    description: 'Assist with hardware setup and sensor testing for robotics class.',
+    category: 'Tech',
+    pay_rate: 20,
+    pay_type: 'hourly',
+    location: 'MIT Campus Lab',
+    status: 'open',
+    user_email: 'avery@mit.test',
+  },
+  {
+    title: 'Bio Study Group Facilitator',
+    description: 'Lead weekly human biology study sessions.',
+    category: 'Academic',
+    pay_rate: 18,
+    pay_type: 'hourly',
+    location: 'Stanford Main Quad',
+    status: 'open',
+    user_email: 'sofia@stanford.test',
+  },
+  {
+    title: 'Case Competition Coach',
+    description: 'Help underclassmen prep for econ case competitions.',
+    category: 'Tutoring',
+    pay_rate: 35,
+    pay_type: 'hourly',
+    location: 'Harvard Campus',
+    status: 'open',
+    user_email: 'ethan@harvard.test',
+  },
 ];
 
 const items = [
@@ -120,6 +177,33 @@ const items = [
     status: 'available',
     user_email: 'liam@campushelper.test',
   },
+  {
+    title: 'Arduino Starter Kit',
+    description: 'Complete kit with sensors and breadboards.',
+    category: 'equipment',
+    price: 45,
+    condition: 'like_new',
+    status: 'available',
+    user_email: 'avery@mit.test',
+  },
+  {
+    title: 'Anatomy Flashcards Set',
+    description: 'Comprehensive deck for human biology courses.',
+    category: 'notes',
+    price: 25,
+    condition: 'like_new',
+    status: 'available',
+    user_email: 'sofia@stanford.test',
+  },
+  {
+    title: 'Econometrics Textbook',
+    description: 'Wooldridge 7th edition, light highlighting.',
+    category: 'books',
+    price: 60,
+    condition: 'good',
+    status: 'available',
+    user_email: 'ethan@harvard.test',
+  },
 ];
 
 const posts = [
@@ -140,6 +224,24 @@ const posts = [
     content: 'Anyone interested in forming a study group for the final project? Meeting twice a week.',
     category: 'academic',
     user_email: 'liam@campushelper.test',
+  },
+  {
+    title: 'Looking for hardware soldering tips',
+    content: 'Any good tutorials or meetups near MIT for soldering and PCB rework?',
+    category: 'academic',
+    user_email: 'avery@mit.test',
+  },
+  {
+    title: 'Bio midterm study swap',
+    content: 'Anyone want to trade study guides for HumBio this quarter?',
+    category: 'academic',
+    user_email: 'sofia@stanford.test',
+  },
+  {
+    title: 'Best coffee near Harvard Yard?',
+    content: 'Need a quiet cafe for econ problem sets. Suggestions?',
+    category: 'general',
+    user_email: 'ethan@harvard.test',
   },
 ];
 
