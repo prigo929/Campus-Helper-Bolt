@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Briefcase, ShoppingBag, MessageSquare, Star, TrendingUp, Shield } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 import { supabase, Job, MarketplaceItem, ForumPost } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -94,7 +95,10 @@ const FALLBACK_DATA: SupabaseHighlights = {
 };
 
 async function loadSupabaseHighlights(): Promise<SupabaseHighlights> {
-  const client = supabase;
+  const client =
+    process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.NEXT_PUBLIC_SUPABASE_URL
+      ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
+      : supabase;
 
   if (!client) {
     console.warn('Supabase is not configured; using fallback homepage content.');
