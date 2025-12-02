@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Star, MapPin, GraduationCap, Mail, Briefcase, ShoppingBag, Edit, Loader2, AlertTriangle } from 'lucide-react';
+import { Star, MapPin, GraduationCap, Mail, Briefcase, ShoppingBag, Edit, Loader2, AlertTriangle, MessageSquare, Trash2 } from 'lucide-react';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase, type Profile, type Job, type MarketplaceItem, type Rating } from '@/lib/supabase';
+import { supabase, type Profile, type Job, type MarketplaceItem, type Rating, type ForumPost } from '@/lib/supabase';
 import { ensureProfileExists } from '@/lib/profile';
 
 export default function ProfilePage() {
@@ -21,6 +21,8 @@ export default function ProfilePage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [listings, setListings] = useState<MarketplaceItem[]>([]);
   const [reviews, setReviews] = useState<Rating[]>([]);
+  const [posts, setPosts] = useState<ForumPost[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -50,6 +52,8 @@ export default function ProfilePage() {
         setLoading(false);
         return;
       }
+
+      setUserId(session.user.id);
 
       try {
         await ensureProfileExists(supabase, session);
@@ -83,6 +87,12 @@ export default function ProfilePage() {
           .eq('rated_user_id', userId)
           .order('created_at', { ascending: false })
           .limit(25),
+        supabase
+          .from('forum_posts')
+          .select('id, title, content, category, created_at, updated_at')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(25),
       ]);
 
       if (profileRes.error) {
@@ -109,6 +119,12 @@ export default function ProfilePage() {
         setReviews(reviewsRes.data || []);
       }
 
+      if (postsRes.error) {
+        console.error('Posts fetch error', postsRes.error);
+      } else {
+        setPosts(postsRes.data || []);
+      }
+
       setLoading(false);
     };
 
@@ -133,6 +149,26 @@ export default function ProfilePage() {
     .join('')
     .slice(0, 2)
     .toUpperCase();
+
+  const handleDeleteJob = async (id: string) => {
+    if (!supabase || !userId) return;
+    const { error: deleteError } = await supabase.from('jobs').delete().eq('id', id).eq('user_id', userId);
+    if (!deleteError) {
+      setJobs((prev) => prev.filter((job) => job.id !== id));
+    } else {
+      console.error('Delete job failed', deleteError);
+    }
+  };
+
+  const handleDeleteListing = async (id: string) => {
+    if (!supabase || !userId) return;
+    const { error: deleteError } = await supabase.from('marketplace_items').delete().eq('id', id).eq('user_id', userId);
+    if (!deleteError) {
+      setListings((prev) => prev.filter((item) => item.id !== id));
+    } else {
+      console.error('Delete listing failed', deleteError);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -228,6 +264,10 @@ export default function ProfilePage() {
                     <ShoppingBag className="w-4 h-4 mr-2" />
                     My Listings
                   </TabsTrigger>
+                  <TabsTrigger value="posts" className="data-[state=active]:bg-[#1e3a5f] data-[state=active]:text-white">
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    My Posts
+                  </TabsTrigger>
                   <TabsTrigger value="reviews" className="data-[state=active]:bg-[#1e3a5f] data-[state=active]:text-white">
                     <Star className="w-4 h-4 mr-2" />
                     Reviews
@@ -309,6 +349,14 @@ export default function ProfilePage() {
                                   {job.updated_at && <span className="text-gray-400">Updated {formatDate(job.updated_at)}</span>}
                                 </div>
                               </div>
+                              <Button
+                                variant="outline"
+                                className="border-red-200 text-red-600 hover:bg-red-50"
+                                onClick={() => handleDeleteJob(job.id)}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Remove
+                              </Button>
                             </div>
                           </CardContent>
                         </Card>
@@ -345,6 +393,14 @@ export default function ProfilePage() {
                                   {listing.created_at && <span className="text-sm text-gray-500">Listed {formatDate(listing.created_at)}</span>}
                                 </div>
                               </div>
+                              <Button
+                                variant="outline"
+                                className="border-red-200 text-red-600 hover:bg-red-50"
+                                onClick={() => handleDeleteListing(listing.id)}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Remove
+                              </Button>
                             </div>
                           </CardContent>
                         </Card>
@@ -380,6 +436,31 @@ export default function ProfilePage() {
                               </div>
                               <span className="text-sm text-gray-500">{formatDate(review.created_at)}</span>
                             </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="posts">
+                  {posts.length === 0 ? (
+                    <div className="text-gray-600 text-sm">You have not created any posts yet.</div>
+                  ) : (
+                    <div className="grid gap-4">
+                      {posts.map((post) => (
+                        <Card key={post.id} className="border-2">
+                          <CardContent className="p-6">
+                            <div className="flex items-center justify-between mb-2">
+                              <div>
+                                <h3 className="text-lg font-bold text-[#1e3a5f]">{post.title}</h3>
+                                <p className="text-sm text-gray-600 capitalize">{post.category}</p>
+                              </div>
+                              {post.created_at && (
+                                <span className="text-sm text-gray-500">Posted {formatDate(post.created_at)}</span>
+                              )}
+                            </div>
+                            <p className="text-gray-700 text-sm line-clamp-2">{post.content}</p>
                           </CardContent>
                         </Card>
                       ))}
