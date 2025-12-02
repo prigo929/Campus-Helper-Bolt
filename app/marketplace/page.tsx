@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Search, Plus, BookOpen, FileText, Microscope, Laptop } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { Search, Plus, BookOpen, FileText, Microscope, Laptop, Loader2 } from 'lucide-react';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
 import { Button } from '@/components/ui/button';
@@ -9,10 +10,18 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { supabase, type MarketplaceItem } from '@/lib/supabase';
 
 const categories = ['All', 'Books', 'Notes', 'Exams', 'Equipment', 'Other'];
 
-const sampleItems = [
+type DisplayItem = MarketplaceItem & {
+  seller?: string;
+  seller_rating?: number;
+  posted?: string;
+  category_label?: string;
+};
+
+const sampleItems: DisplayItem[] = [
   {
     id: '1',
     title: 'Introduction to Psychology Textbook',
@@ -90,15 +99,74 @@ const categoryIcons = {
 };
 
 export default function MarketplacePage() {
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [items, setItems] = useState<DisplayItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredItems = sampleItems.filter((item) => {
-    const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
-    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          item.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const capitalizeCategory = (value?: string | null) => {
+    if (!value) return '';
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  };
+
+  useEffect(() => {
+    const loadItems = async () => {
+      if (!supabase) {
+        setItems(sampleItems);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        setItems(sampleItems);
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('marketplace_items')
+        .select('id, user_id, title, description, category, price, condition, status, created_at, updated_at, profiles(full_name,email)')
+        .order('created_at', { ascending: false })
+        .limit(60);
+
+      if (!error && data) {
+        const mapped: DisplayItem[] = data.map((item) => {
+          const profile = (item as any).profiles;
+          return {
+            ...item,
+            category_label: capitalizeCategory(item.category),
+            posted: item.created_at,
+            seller: profile?.full_name || profile?.email || 'Campus Helper user',
+          };
+        });
+        setItems(mapped);
+      } else {
+        setItems(sampleItems);
+      }
+
+      setLoading(false);
+    };
+
+    loadItems();
+  }, []);
+
+  const filteredItems = useMemo(() => {
+    return items.filter((item) => {
+      const itemCategory = item.category_label || capitalizeCategory(item.category);
+      const matchesCategory =
+        selectedCategory === 'All' ||
+        (itemCategory || '').toLowerCase() === selectedCategory.toLowerCase();
+      const term = searchTerm.toLowerCase();
+      const matchesSearch =
+        item.title.toLowerCase().includes(term) ||
+        (item.description || '').toLowerCase().includes(term);
+      return matchesCategory && matchesSearch;
+    });
+  }, [items, searchTerm, selectedCategory]);
 
   const getConditionColor = (condition: string) => {
     switch (condition) {
@@ -109,6 +177,9 @@ export default function MarketplacePage() {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  const formatDate = (value?: string | null) =>
+    value ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -127,7 +198,10 @@ export default function MarketplacePage() {
                 <h1 className="text-4xl font-bold mb-2">Marketplace</h1>
                 <p className="text-gray-200">Buy and sell study materials and equipment</p>
               </div>
-              <Button className="bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e] font-semibold">
+              <Button
+                className="bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e] font-semibold"
+                onClick={() => router.push('/marketplace/create')}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 List Item
               </Button>
@@ -141,11 +215,11 @@ export default function MarketplacePage() {
                   placeholder="Search items..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-12 bg-white"
+                  className="pl-10 h-12 bg-white text-gray-900 placeholder:text-gray-500"
                 />
               </div>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full md:w-48 h-12 bg-white">
+                <SelectTrigger className="w-full md:w-48 h-12 bg-white text-gray-900 data-[placeholder]:text-gray-500">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -162,14 +236,16 @@ export default function MarketplacePage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-6">
-            <p className="text-gray-600">
+            <p className="text-gray-600 flex items-center gap-3">
               Showing <span className="font-semibold text-[#1e3a5f]">{filteredItems.length}</span> items
+              {loading && <Loader2 className="w-4 h-4 animate-spin text-[#1e3a5f]" />}
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredItems.map((item, index) => {
-              const IconComponent = categoryIcons[item.category as keyof typeof categoryIcons] || Microscope;
+              const categoryKey = (item.category_label || item.category || 'Other') as keyof typeof categoryIcons;
+              const IconComponent = categoryIcons[categoryKey] || Microscope;
               return (
                 <Card
                   key={item.id}
@@ -182,7 +258,7 @@ export default function MarketplacePage() {
                         <IconComponent className="w-6 h-6 text-[#1e3a5f]" />
                       </div>
                       <Badge className="bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e]">
-                        {item.category}
+                        {item.category_label || item.category}
                       </Badge>
                     </div>
 
@@ -199,14 +275,19 @@ export default function MarketplacePage() {
                     </div>
 
                     <div className="flex items-center text-sm text-gray-600">
-                      <span className="font-medium">{item.seller}</span>
-                      <span className="ml-2 text-[#d4af37]">★ {item.seller_rating}</span>
-                      <span className="ml-auto text-gray-400">{item.posted}</span>
+                      <span className="font-medium">{item.seller || 'Campus Helper user'}</span>
+                      {item.seller_rating && <span className="ml-2 text-[#d4af37]">★ {item.seller_rating}</span>}
+                      <span className="ml-auto text-gray-400">
+                        {item.posted ? formatDate(item.posted) : formatDate(item.created_at) || 'Recently listed'}
+                      </span>
                     </div>
                   </CardContent>
 
                   <CardFooter className="p-6 pt-0">
-                    <Button className="w-full bg-[#1e3a5f] hover:bg-[#2a4a6f] text-white">
+                    <Button
+                      className="w-full bg-[#1e3a5f] hover:bg-[#2a4a6f] text-white"
+                      onClick={() => router.push(`/marketplace/detail?id=${item.id}`)}
+                    >
                       View Details
                     </Button>
                   </CardFooter>
@@ -217,7 +298,9 @@ export default function MarketplacePage() {
 
           {filteredItems.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No items found matching your criteria.</p>
+              <p className="text-gray-500 text-lg">
+                {loading ? 'Loading items...' : 'No items found matching your criteria.'}
+              </p>
               <p className="text-gray-400 mt-2">Try adjusting your filters or search terms.</p>
             </div>
           )}

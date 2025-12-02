@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Search, MapPin, DollarSign, Clock, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { Search, MapPin, DollarSign, Clock, Plus, Loader2 } from 'lucide-react';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
 import { Button } from '@/components/ui/button';
@@ -9,10 +10,17 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { supabase, type Job } from '@/lib/supabase';
 
 const categories = ['All', 'Tutoring', 'Research', 'Campus Tasks', 'Events', 'Tech', 'Other'];
 
-const sampleJobs = [
+type DisplayJob = Job & {
+  user_name?: string;
+  user_rating?: number;
+  posted?: string;
+};
+
+const sampleJobs: DisplayJob[] = [
   {
     id: '1',
     title: 'Math Tutor Needed',
@@ -68,15 +76,70 @@ const sampleJobs = [
 ];
 
 export default function JobsPage() {
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [jobs, setJobs] = useState<DisplayJob[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredJobs = sampleJobs.filter((job) => {
-    const matchesCategory = selectedCategory === 'All' || job.category === selectedCategory;
-    const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          job.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  useEffect(() => {
+    const loadJobs = async () => {
+      if (!supabase) {
+        setJobs(sampleJobs);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        setJobs(sampleJobs);
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('id, user_id, title, description, category, pay_rate, pay_type, location, status, created_at, updated_at, profiles(full_name,email)')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (!error && data) {
+        const mapped: DisplayJob[] = data.map((job) => {
+          const profile = (job as any).profiles;
+          return {
+            ...job,
+            posted: job.created_at,
+            user_name: profile?.full_name || profile?.email || 'Campus Helper user',
+          };
+        });
+        setJobs(mapped);
+      } else {
+        setJobs(sampleJobs);
+      }
+
+      setLoading(false);
+    };
+
+    loadJobs();
+  }, []);
+
+  const filteredJobs = useMemo(() => {
+    return jobs.filter((job) => {
+      const matchesCategory =
+        selectedCategory === 'All' ||
+        (job.category || '').toLowerCase() === selectedCategory.toLowerCase();
+      const term = searchTerm.toLowerCase();
+      const matchesSearch =
+        job.title.toLowerCase().includes(term) ||
+        (job.description || '').toLowerCase().includes(term);
+      return matchesCategory && matchesSearch;
+    });
+  }, [jobs, searchTerm, selectedCategory]);
+
+  const formatDate = (value?: string | null) =>
+    value ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -95,7 +158,10 @@ export default function JobsPage() {
                 <h1 className="text-4xl font-bold mb-2">Student Jobs</h1>
                 <p className="text-gray-200">Find flexible work that fits your schedule</p>
               </div>
-              <Button className="bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e] font-semibold">
+              <Button
+                className="bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e] font-semibold"
+                onClick={() => router.push('/jobs/create')}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Post a Job
               </Button>
@@ -109,11 +175,11 @@ export default function JobsPage() {
                   placeholder="Search jobs..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-12 bg-white"
+                  className="pl-10 h-12 bg-white text-gray-900 placeholder:text-gray-500"
                 />
               </div>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full md:w-48 h-12 bg-white">
+                <SelectTrigger className="w-full md:w-48 h-12 bg-white text-gray-900 data-[placeholder]:text-gray-500">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -130,8 +196,9 @@ export default function JobsPage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-6">
-            <p className="text-gray-600">
+            <p className="text-gray-600 flex items-center gap-3">
               Showing <span className="font-semibold text-[#1e3a5f]">{filteredJobs.length}</span> jobs
+              {loading && <Loader2 className="w-4 h-4 animate-spin text-[#1e3a5f]" />}
             </p>
           </div>
 
@@ -148,11 +215,11 @@ export default function JobsPage() {
                       <CardTitle className="text-xl text-[#1e3a5f] mb-2">{job.title}</CardTitle>
                       <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
                         <div className="flex items-center">
-                          <span className="font-medium">{job.user_name}</span>
-                          <span className="ml-2 text-[#d4af37]">★ {job.user_rating}</span>
+                          <span className="font-medium">{job.user_name || 'Campus Helper user'}</span>
+                          {job.user_rating && <span className="ml-2 text-[#d4af37]">★ {job.user_rating}</span>}
                         </div>
                         <span className="text-gray-400">•</span>
-                        <span>{job.posted}</span>
+                        <span>{job.posted ? formatDate(job.posted) : formatDate(job.created_at) || 'Recently posted'}</span>
                       </div>
                     </div>
                     <Badge className="bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e]">
@@ -179,25 +246,32 @@ export default function JobsPage() {
                       {job.location}
                     </div>
 
-                    <div className="flex items-center text-gray-600">
-                      <Clock className="w-4 h-4 mr-1 text-[#d4af37]" />
-                      {job.status === 'open' ? 'Open' : 'Closed'}
-                    </div>
-                  </div>
+                <div className="flex items-center text-gray-600">
+                  <Clock className="w-4 h-4 mr-1 text-[#d4af37]" />
+                  {(job.status || 'open') === 'open' ? 'Open' : 'Closed'}
+                </div>
+              </div>
 
-                  <div className="mt-4 pt-4 border-t">
-                    <Button className="bg-[#1e3a5f] hover:bg-[#2a4a6f] text-white">
-                      View Details
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+              <div className="mt-4 pt-4 border-t flex items-center justify-between text-sm text-gray-500">
+                <span>Updated {formatDate(job.updated_at || job.created_at) || 'recently'}</span>
+                <Button
+                  variant="ghost"
+                  className="text-[#1e3a5f] hover:text-[#d4af37] hover:bg-transparent"
+                  onClick={() => router.push(`/jobs/detail?id=${job.id}`)}
+                >
+                  View Details →
+                </Button>
+              </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
           {filteredJobs.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No jobs found matching your criteria.</p>
+              <p className="text-gray-500 text-lg">
+                {loading ? 'Loading jobs...' : 'No jobs found matching your criteria.'}
+              </p>
               <p className="text-gray-400 mt-2">Try adjusting your filters or search terms.</p>
             </div>
           )}

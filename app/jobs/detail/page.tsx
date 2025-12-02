@@ -1,0 +1,331 @@
+'use client';
+
+import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { ArrowLeft, MapPin, DollarSign, Clock, Loader2, AlertCircle, Star } from 'lucide-react';
+import { Navigation } from '@/components/navigation';
+import { Footer } from '@/components/footer';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { supabase, type Job } from '@/lib/supabase';
+import type { Rating } from '@/lib/supabase';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+const fallbackJob: Job = {
+  id: 'demo',
+  user_id: 'demo',
+  title: 'Sample job',
+  description: 'Sign in to view full job details.',
+  category: 'Campus',
+  pay_rate: 20,
+  pay_type: 'hourly',
+  location: 'On campus',
+  status: 'open',
+  created_at: '',
+  updated_at: '',
+};
+
+export default function JobDetailPage() {
+  const router = useRouter();
+  const params = useSearchParams();
+  const id = params.get('id') || '';
+
+  const [job, setJob] = useState<Job | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [poster, setPoster] = useState('Campus Helper user');
+  const [posterId, setPosterId] = useState<string | null>(null);
+  const [reviews, setReviews] = useState<Rating[]>([]);
+  const [ratingSummary, setRatingSummary] = useState<{ rating?: number | null; total_ratings?: number | null }>({});
+  const [newRating, setNewRating] = useState('5');
+  const [newComment, setNewComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submitMessage, setSubmitMessage] = useState('');
+
+  useEffect(() => {
+    const load = async () => {
+      if (!id) {
+        setJob(fallbackJob);
+        setLoading(false);
+        return;
+      }
+
+      if (!supabase) {
+        setJob(fallbackJob);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        setJob(fallbackJob);
+        setLoading(false);
+        return;
+      }
+
+      const { data, error: fetchError } = await supabase
+        .from('jobs')
+        .select('id, user_id, title, description, category, pay_rate, pay_type, location, status, created_at, updated_at, profiles(full_name,email,rating,total_ratings)')
+        .eq('id', id)
+        .single();
+
+      if (fetchError) {
+        setError(fetchError.message);
+        setJob(fallbackJob);
+      } else {
+        setJob(data);
+        const profile = (data as any).profiles;
+        setPoster(profile?.full_name || profile?.email || 'Campus Helper user');
+        setPosterId(data.user_id || null);
+        setRatingSummary({ rating: profile?.rating, total_ratings: profile?.total_ratings });
+      }
+
+      setLoading(false);
+    };
+
+    load();
+  }, [id]);
+
+  useEffect(() => {
+    const loadReviews = async () => {
+      if (!posterId || !supabase) return;
+      const { data, error: ratingsError } = await supabase
+        .from('ratings')
+        .select('id, rating, comment, created_at')
+        .eq('rated_user_id', posterId)
+        .order('created_at', { ascending: false })
+        .limit(5);
+      if (!ratingsError && data) {
+        setReviews(data);
+      }
+    };
+    loadReviews();
+  }, [posterId]);
+
+  const formatDate = (value?: string | null) =>
+    value ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+
+  const status = (job?.status || 'open').replace('_', ' ');
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Navigation />
+
+      <main className="flex-1">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center gap-3 mb-4">
+            <Button variant="ghost" className="text-[#1e3a5f] hover:text-[#d4af37]" onClick={() => router.back()}>
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back
+            </Button>
+          </div>
+
+          <Card className="border-2">
+            <CardHeader>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <CardTitle className="text-2xl text-[#1e3a5f]">{job?.title || 'Job details'}</CardTitle>
+                  <CardDescription className="text-gray-600">{job?.category || 'Campus'}</CardDescription>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Posted by{' '}
+                    {posterId ? (
+                      <Link href={`/profile/view?id=${posterId}`} className="underline hover:text-[#d4af37]">
+                        {poster}
+                      </Link>
+                    ) : (
+                      poster
+                    )}
+                  </p>
+                </div>
+                <Badge className={
+                  status.includes('completed') ? 'bg-green-100 text-green-800' :
+                  status.includes('progress') ? 'bg-blue-100 text-blue-800' :
+                  status.includes('cancelled') ? 'bg-gray-200 text-gray-800' :
+                  'bg-[#d4af37] text-[#1e3a5f]'
+                }>
+                  {status}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {loading && (
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Loading job...
+                </div>
+              )}
+              {error && (
+                <div className="flex items-start gap-2 text-sm text-red-700 bg-red-50 border border-red-200 px-3 py-2 rounded-md">
+                  <AlertCircle className="w-4 h-4 mt-0.5" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-700">
+                <div className="flex items-center">
+                  <DollarSign className="w-4 h-4 mr-1 text-[#d4af37]" />
+                  <span className="font-semibold text-[#1e3a5f]">${job?.pay_rate}</span>
+                  <span className="ml-1">
+                    {job?.pay_type === 'hourly'
+                      ? '/hr'
+                      : job?.pay_type === 'fixed'
+                      ? 'total'
+                      : 'negotiable'}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <MapPin className="w-4 h-4 mr-1 text-[#d4af37]" />
+                  {job?.location}
+                </div>
+                <div className="flex items-center">
+                  <Clock className="w-4 h-4 mr-1 text-[#d4af37]" />
+                  Posted {formatDate(job?.created_at)}
+                </div>
+              </div>
+
+              <div>
+                <h2 className="text-lg font-semibold text-[#1e3a5f] mb-2">Description</h2>
+                <p className="text-gray-700 whitespace-pre-line">{job?.description}</p>
+              </div>
+
+              <Card className="border border-[#d4af37]/30 bg-gradient-to-br from-white via-white to-[#fff8e1]">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-[#1e3a5f] text-lg">Reviews for {poster}</CardTitle>
+                  <CardDescription className="text-gray-600">
+                    {ratingSummary.rating ? `${ratingSummary.rating.toFixed(1)} average • ${ratingSummary.total_ratings || 0} ratings` : 'No ratings yet'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {reviews.length === 0 ? (
+                    <p className="text-sm text-gray-600">No reviews yet.</p>
+                  ) : (
+                    reviews.map((review) => (
+                      <div key={review.id} className="rounded-lg border border-gray-200 bg-white px-3 py-2">
+                        <div className="flex items-center gap-2 text-[#d4af37] mb-1">
+                          {[...Array(5)].map((_, idx) => (
+                            <Star key={idx} className={`w-4 h-4 ${idx < review.rating ? 'fill-current' : ''}`} />
+                          ))}
+                          <span className="text-xs text-gray-500 ml-2">{formatDate(review.created_at)}</span>
+                        </div>
+                        <p className="text-sm text-gray-700">{review.comment || 'No comment provided.'}</p>
+                      </div>
+                    ))
+                  )}
+
+                  <div className="border-t pt-3 space-y-3">
+                    <h3 className="text-sm font-semibold text-[#1e3a5f]">Leave a review</h3>
+                    {submitError && (
+                      <div className="text-sm text-red-700 bg-red-50 border border-red-200 px-3 py-2 rounded-md">
+                        {submitError}
+                      </div>
+                    )}
+                    {submitMessage && (
+                      <div className="text-sm text-green-800 bg-green-50 border border-green-200 px-3 py-2 rounded-md">
+                        {submitMessage}
+                      </div>
+                    )}
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label htmlFor="rating">Rating</Label>
+                        <Input
+                          id="rating"
+                          type="number"
+                          min={1}
+                          max={5}
+                          step={1}
+                          value={newRating}
+                          onChange={(e) => setNewRating(e.target.value)}
+                          disabled={submitting}
+                        />
+                      </div>
+                      <div className="space-y-1 md:col-span-2">
+                        <Label htmlFor="comment">Comment</Label>
+                        <Textarea
+                          id="comment"
+                          placeholder="Share your experience..."
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
+                          rows={3}
+                          disabled={submitting}
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      className="bg-[#1e3a5f] text-white hover:bg-[#2a4a6f]"
+                      disabled={submitting}
+                      onClick={async () => {
+                        setSubmitError('');
+                        setSubmitMessage('');
+                        if (!posterId) {
+                          setSubmitError('No user to review.');
+                          return;
+                        }
+                        if (!supabase) {
+                          setSubmitError('Supabase is not configured.');
+                          return;
+                        }
+                        const parsedRating = Number(newRating);
+                        if (Number.isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+                          setSubmitError('Rating must be between 1 and 5.');
+                          return;
+                        }
+
+                        setSubmitting(true);
+                        const { data: sessionData } = await supabase.auth.getSession();
+                        const userId = sessionData.session?.user?.id;
+                        if (!userId) {
+                          setSubmitError('Please sign in to leave a review.');
+                          setSubmitting(false);
+                          return;
+                        }
+
+                        const { error: insertError } = await supabase.from('ratings').insert({
+                          rated_user_id: posterId,
+                          rater_user_id: userId,
+                          rating: parsedRating,
+                          comment: newComment.trim(),
+                          transaction_type: 'profile',
+                        });
+
+                        if (insertError) {
+                          setSubmitError(insertError.message);
+                        } else {
+                          setSubmitMessage('Review submitted!');
+                          setReviews((prev) => [
+                            {
+                              id: crypto.randomUUID(),
+                              rated_user_id: posterId,
+                              rater_user_id: userId,
+                              rating: parsedRating,
+                              comment: newComment.trim(),
+                              transaction_type: 'profile',
+                              created_at: new Date().toISOString(),
+                            },
+                            ...prev,
+                          ]);
+                          setNewRating('5');
+                          setNewComment('');
+                        }
+                        setSubmitting(false);
+                      }}
+                    >
+                      {submitting ? 'Submitting...' : 'Submit review'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}

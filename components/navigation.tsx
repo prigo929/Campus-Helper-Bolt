@@ -1,10 +1,81 @@
 'use client';
 
 import Link from 'next/link';
-import { Briefcase, ShoppingBag, MessageSquare, User } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { Briefcase, ShoppingBag, MessageSquare, User, LogOut, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { supabase } from '@/lib/supabase';
 
 export function Navigation() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [isAuthed, setIsAuthed] = useState(false);
+  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadUser = async () => {
+      if (!supabase) return;
+
+      setLoading(true);
+      const { data } = await supabase.auth.getSession();
+      if (!isMounted) return;
+
+      const session = data.session;
+      setIsAuthed(Boolean(session));
+
+      if (!session?.user) {
+        setDisplayName('');
+        setEmail('');
+        setLoading(false);
+        return;
+      }
+
+      const baseEmail = session.user.email || '';
+      setEmail(baseEmail);
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', session.user.id)
+        .single();
+
+      setDisplayName(profile?.full_name || baseEmail || 'Profile');
+      setLoading(false);
+    };
+
+    loadUser();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const initials = useMemo(() => {
+    const source = displayName || email || 'CH';
+    return source
+      .split(' ')
+      .filter(Boolean)
+      .map((part) => part[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+  }, [displayName, email]);
+
+  const handleSignOut = async () => {
+    if (!supabase) return;
+    setLoading(true);
+    await supabase.auth.signOut();
+    setIsAuthed(false);
+    setDisplayName('');
+    setEmail('');
+    setLoading(false);
+    router.refresh();
+  };
+
   return (
     <nav className="bg-[#1e3a5f] text-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -38,17 +109,42 @@ export function Navigation() {
           </div>
 
           <div className="flex items-center space-x-2">
-            <Link href="/profile">
-              <Button variant="ghost" className="text-white hover:text-[#d4af37] hover:bg-[#2a4a6f]">
-                <User className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Profile</span>
-              </Button>
-            </Link>
-            <Link href="/sign-in">
-              <Button className="bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e] font-semibold">
-                Sign In
-              </Button>
-            </Link>
+            {isAuthed ? (
+              <>
+                <Link href="/profile">
+                  <Button variant="ghost" className="text-white hover:text-[#d4af37] hover:bg-[#2a4a6f] flex items-center gap-2">
+                    <Avatar className="h-7 w-7 border border-white/20 bg-white/10">
+                      <AvatarFallback className="bg-[#d4af37] text-[#1e3a5f] text-xs font-semibold">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="hidden sm:inline">{displayName || 'Profile'}</span>
+                  </Button>
+                </Link>
+                <Button
+                  variant="outline"
+                  className="border-white bg-white/10 text-white hover:bg-white hover:text-[#1e3a5f]"
+                  onClick={handleSignOut}
+                  disabled={loading}
+                >
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogOut className="w-4 h-4" />}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/profile">
+                  <Button variant="ghost" className="text-white hover:text-[#d4af37] hover:bg-[#2a4a6f]">
+                    <User className="w-4 h-4 mr-2" />
+                    <span className="hidden sm:inline">Profile</span>
+                  </Button>
+                </Link>
+                <Link href="/sign-in">
+                  <Button className="bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e] font-semibold">
+                    Sign In
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

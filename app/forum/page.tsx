@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Search, Plus, MessageSquare, Eye, TrendingUp } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { Search, Plus, MessageSquare, Eye, TrendingUp, Loader2 } from 'lucide-react';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
 import { Button } from '@/components/ui/button';
@@ -10,10 +11,19 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { supabase, type ForumPost } from '@/lib/supabase';
 
 const categories = ['All', 'General', 'Academic', 'Events', 'Housing', 'Other'];
 
-const samplePosts = [
+type DisplayPost = ForumPost & {
+  user_name?: string;
+  user_rating?: number;
+  comments?: number;
+  posted?: string;
+  trending?: boolean;
+};
+
+const samplePosts: DisplayPost[] = [
   {
     id: '1',
     title: 'Best study spots on campus?',
@@ -89,17 +99,72 @@ const samplePosts = [
 ];
 
 export default function ForumPage() {
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('recent');
+  const [posts, setPosts] = useState<DisplayPost[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredPosts = samplePosts.filter((post) => {
-    const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
-    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          post.content.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesTab = activeTab === 'recent' || (activeTab === 'trending' && post.trending);
-    return matchesCategory && matchesSearch && matchesTab;
-  });
+  useEffect(() => {
+    const loadPosts = async () => {
+      if (!supabase) {
+        setPosts(samplePosts);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        setPosts(samplePosts);
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('forum_posts')
+        .select('id, user_id, title, content, category, views, created_at, updated_at, profiles(full_name,email)')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (!error && data) {
+        const mapped: DisplayPost[] = data.map((post) => {
+          const profile = (post as any).profiles;
+          return {
+            ...post,
+            posted: post.created_at,
+            trending: post.views ? post.views > 100 : false,
+            comments: 0,
+            user_name: profile?.full_name || profile?.email || 'Campus Helper user',
+          };
+        });
+        setPosts(mapped);
+      } else {
+        setPosts(samplePosts);
+      }
+
+      setLoading(false);
+    };
+
+    loadPosts();
+  }, []);
+
+  const filteredPosts = useMemo(() => {
+    return posts.filter((post) => {
+      const matchesCategory =
+        selectedCategory === 'All' ||
+        (post.category || '').toLowerCase() === selectedCategory.toLowerCase();
+      const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            (post.content || '').toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesTab = activeTab === 'recent' || (activeTab === 'trending' && post.trending);
+      return matchesCategory && matchesSearch && matchesTab;
+    });
+  }, [posts, activeTab, selectedCategory, searchTerm]);
+
+  const formatDate = (value?: string | null) =>
+    value ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recently';
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -128,7 +193,10 @@ export default function ForumPage() {
                 <h1 className="text-4xl font-bold mb-2">Community Forum</h1>
                 <p className="text-gray-200">Connect with students and share campus life</p>
               </div>
-              <Button className="bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e] font-semibold">
+              <Button
+                className="bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e] font-semibold"
+                onClick={() => router.push('/forum/new')}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 New Post
               </Button>
@@ -142,11 +210,11 @@ export default function ForumPage() {
                   placeholder="Search discussions..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-12 bg-white"
+                  className="pl-10 h-12 bg-white text-gray-900 placeholder:text-gray-500"
                 />
               </div>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full md:w-48 h-12 bg-white">
+                <SelectTrigger className="w-full md:w-48 h-12 bg-white text-gray-900 data-[placeholder]:text-gray-500">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -175,8 +243,9 @@ export default function ForumPage() {
 
             <TabsContent value={activeTab} className="mt-6">
               <div className="mb-6">
-                <p className="text-gray-600">
+                <p className="text-gray-600 flex items-center gap-3">
                   Showing <span className="font-semibold text-[#1e3a5f]">{filteredPosts.length}</span> posts
+                  {loading && <Loader2 className="w-4 h-4 animate-spin text-[#1e3a5f]" />}
                 </p>
               </div>
 
@@ -199,12 +268,12 @@ export default function ForumPage() {
                               </Badge>
                             )}
                           </div>
-                          <div className="flex items-center gap-3 text-sm text-gray-600">
-                            <span className="font-medium">{post.user_name}</span>
-                            <span className="text-[#d4af37]">★ {post.user_rating}</span>
-                            <span className="text-gray-400">•</span>
-                            <span>{post.posted}</span>
-                          </div>
+                        <div className="flex items-center gap-3 text-sm text-gray-600">
+                          <span className="font-medium">{post.user_name || 'Campus Helper user'}</span>
+                          {post.user_rating && <span className="text-[#d4af37]">★ {post.user_rating}</span>}
+                          <span className="text-gray-400">•</span>
+                          <span>{post.posted ? formatDate(post.posted) : formatDate(post.created_at)}</span>
+                        </div>
                         </div>
                         <Badge className={getCategoryColor(post.category)}>
                           {post.category}
@@ -218,13 +287,17 @@ export default function ForumPage() {
                       <div className="flex items-center gap-6 text-sm text-gray-600">
                         <div className="flex items-center">
                           <Eye className="w-4 h-4 mr-1 text-[#d4af37]" />
-                          <span>{post.views} views</span>
+                          <span>{post.views ?? 0} views</span>
                         </div>
                         <div className="flex items-center">
                           <MessageSquare className="w-4 h-4 mr-1 text-[#d4af37]" />
-                          <span>{post.comments} comments</span>
+                          <span>{post.comments ?? 0} comments</span>
                         </div>
-                        <Button variant="ghost" className="ml-auto text-[#1e3a5f] hover:text-[#d4af37] hover:bg-transparent">
+                        <Button
+                          variant="ghost"
+                          className="ml-auto text-[#1e3a5f] hover:text-[#d4af37] hover:bg-transparent"
+                          onClick={() => router.push(`/forum/post?id=${post.id}`)}
+                        >
                           View Discussion →
                         </Button>
                       </div>
@@ -235,7 +308,9 @@ export default function ForumPage() {
 
               {filteredPosts.length === 0 && (
                 <div className="text-center py-12">
-                  <p className="text-gray-500 text-lg">No posts found matching your criteria.</p>
+                  <p className="text-gray-500 text-lg">
+                    {loading ? 'Loading posts...' : 'No posts found matching your criteria.'}
+                  </p>
                   <p className="text-gray-400 mt-2">Try adjusting your filters or search terms.</p>
                 </div>
               )}
