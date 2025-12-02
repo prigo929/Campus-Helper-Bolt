@@ -9,6 +9,7 @@ import { Footer } from '@/components/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { supabase, type ForumPost } from '@/lib/supabase';
 
 const fallbackPost: ForumPost = {
@@ -32,6 +33,12 @@ export default function ForumDetailPage() {
   const [error, setError] = useState('');
   const [author, setAuthor] = useState('Campus Helper user');
   const [authorId, setAuthorId] = useState<string | null>(null);
+  const [comments, setComments] = useState<
+    { id: string; content: string; created_at: string; user_id: string; author: string }[]
+  >([]);
+  const [reply, setReply] = useState('');
+  const [replyError, setReplyError] = useState('');
+  const [replying, setReplying] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -48,12 +55,6 @@ export default function ForumDetailPage() {
       }
 
       setLoading(true);
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
-        setPost(fallbackPost);
-        setLoading(false);
-        return;
-      }
 
       const { data, error: fetchError } = await supabase
         .from('forum_posts')
@@ -77,8 +78,84 @@ export default function ForumDetailPage() {
     load();
   }, [id]);
 
+  useEffect(() => {
+    const loadComments = async () => {
+      if (!supabase || !post?.id) return;
+      const { data, error: commentsError } = await supabase
+        .from('forum_comments')
+        .select('id, content, created_at, user_id, profiles(full_name,email)')
+        .eq('post_id', post.id)
+        .order('created_at', { ascending: false });
+      if (commentsError) {
+        console.error('Comments load error', commentsError);
+        return;
+      }
+      const mapped =
+        data?.map((c) => ({
+          id: c.id,
+          content: c.content,
+          created_at: c.created_at,
+          user_id: c.user_id,
+          author: (c as any).profiles?.full_name || (c as any).profiles?.email || 'Campus Helper user',
+        })) || [];
+      setComments(mapped);
+    };
+    loadComments();
+  }, [post?.id]);
+
   const formatDate = (value?: string | null) =>
     value ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+
+  const handleReply = async () => {
+    setReplyError('');
+    if (!supabase) {
+      setReplyError('Supabase is not configured.');
+      return;
+    }
+    if (!post?.id) {
+      setReplyError('No post to reply to.');
+      return;
+    }
+    if (!reply.trim()) {
+      setReplyError('Enter a reply.');
+      return;
+    }
+    setReplying(true);
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData.session?.user?.id;
+    if (!userId) {
+      setReplyError('Please sign in to reply.');
+      setReplying(false);
+      return;
+    }
+    const { error: insertError } = await supabase.from('forum_comments').insert({
+      post_id: post.id,
+      user_id: userId,
+      content: reply.trim(),
+    });
+    if (insertError) {
+      setReplyError(insertError.message);
+      setReplying(false);
+      return;
+    }
+    setReply('');
+    // reload comments
+    const { data: refreshed } = await supabase
+      .from('forum_comments')
+      .select('id, content, created_at, user_id, profiles(full_name,email)')
+      .eq('post_id', post.id)
+      .order('created_at', { ascending: false });
+    const mapped =
+      refreshed?.map((c) => ({
+        id: c.id,
+        content: c.content,
+        created_at: c.created_at,
+        user_id: c.user_id,
+        author: (c as any).profiles?.full_name || (c as any).profiles?.email || 'Campus Helper user',
+      })) || [];
+    setComments(mapped);
+    setReplying(false);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -142,6 +219,56 @@ export default function ForumDetailPage() {
                 <h2 className="text-lg font-semibold text-[#1e3a5f] mb-2">Content</h2>
                 <p className="text-gray-700 whitespace-pre-line">{post?.content}</p>
               </div>
+
+              <Card className="border border-gray-200 bg-white">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-[#1e3a5f] text-lg">Replies</CardTitle>
+                  <CardDescription className="text-gray-600">
+                    Join the discussion with your classmates.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {replyError && (
+                    <div className="text-sm text-red-700 bg-red-50 border border-red-200 px-3 py-2 rounded-md">
+                      {replyError}
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <Textarea
+                      placeholder="Share your thoughts..."
+                      value={reply}
+                      onChange={(e) => setReply(e.target.value)}
+                      rows={3}
+                      disabled={replying}
+                    />
+                    <div className="flex justify-end">
+                      <Button
+                        className="bg-[#1e3a5f] text-white hover:bg-[#2a4a6f]"
+                        disabled={replying}
+                        onClick={handleReply}
+                      >
+                        {replying ? 'Posting...' : 'Post reply'}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    {comments.length === 0 ? (
+                      <p className="text-sm text-gray-600">No replies yet. Be the first to respond.</p>
+                    ) : (
+                      comments.map((comment) => (
+                        <div key={comment.id} className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
+                          <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
+                            <span className="font-semibold text-[#1e3a5f]">{comment.author}</span>
+                            <span className="text-xs text-gray-500">{formatDate(comment.created_at)}</span>
+                          </div>
+                          <p className="text-sm text-gray-700 whitespace-pre-line">{comment.content}</p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </CardContent>
           </Card>
         </div>
