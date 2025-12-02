@@ -461,6 +461,28 @@ export default function ProfilePage() {
                               )}
                             </div>
                             <p className="text-gray-700 text-sm line-clamp-2">{post.content}</p>
+                            <div className="mt-3 flex justify-end">
+                              <Button
+                                variant="outline"
+                                className="border-red-200 text-red-600 hover:bg-red-50"
+                                onClick={async () => {
+                                  if (!supabase || !userId) return;
+                                  const { error: deleteError } = await supabase
+                                    .from('forum_posts')
+                                    .delete()
+                                    .eq('id', post.id)
+                                    .eq('user_id', userId);
+                                  if (!deleteError) {
+                                    setPosts((prev) => prev.filter((p) => p.id !== post.id));
+                                  } else {
+                                    console.error('Delete post failed', deleteError);
+                                  }
+                                }}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Remove
+                              </Button>
+                            </div>
                           </CardContent>
                         </Card>
                       ))}
