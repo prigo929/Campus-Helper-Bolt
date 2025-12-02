@@ -149,6 +149,10 @@ export default function ProfilePage() {
     .join('')
     .slice(0, 2)
     .toUpperCase();
+  const completedEarnings = jobs
+    .filter((job) => (job.status || '').toLowerCase() === 'completed')
+    .reduce((sum, job) => sum + Number(job.pay_rate || 0), 0);
+  const activeListings = listings.filter((listing) => (listing.status || '').toLowerCase() === 'available').length;
 
   const handleDeleteJob = async (id: string) => {
     if (!supabase || !userId) return;
@@ -276,36 +280,38 @@ export default function ProfilePage() {
 
                 <TabsContent value="overview">
                   <div className="grid md:grid-cols-3 gap-6 mb-6">
-                    <Card className="border-2">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-gray-600">Total Earnings</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-3xl font-bold text-[#1e3a5f]">$250</div>
-                        <p className="text-sm text-gray-500 mt-1">From completed jobs</p>
-                      </CardContent>
-                    </Card>
+                <Card className="border-2">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium text-gray-600">Total Earnings</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-[#1e3a5f]">${completedEarnings}</div>
+                    <p className="text-sm text-gray-500 mt-1">From completed jobs</p>
+                  </CardContent>
+                </Card>
 
-                    <Card className="border-2">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-gray-600">Active Listings</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-3xl font-bold text-[#1e3a5f]">1</div>
-                        <p className="text-sm text-gray-500 mt-1">Items for sale</p>
-                      </CardContent>
-                    </Card>
+                <Card className="border-2">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium text-gray-600">Active Listings</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-[#1e3a5f]">{activeListings}</div>
+                    <p className="text-sm text-gray-500 mt-1">Items for sale</p>
+                  </CardContent>
+                </Card>
 
-                    <Card className="border-2">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-gray-600">Reputation</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-3xl font-bold text-[#1e3a5f]">{reputation}</div>
-                        <p className="text-sm text-gray-500 mt-1">Average rating</p>
-                      </CardContent>
-                    </Card>
-                  </div>
+                <Card className="border-2">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium text-gray-600">Reputation</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-[#1e3a5f]">{reputation.toFixed(1)}</div>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Average rating {totalRatings ? `(${totalRatings} reviews)` : ''}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
 
                   <Card className="border-2">
                     <CardHeader>
