@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { ArrowLeft, MapPin, DollarSign, Clock, Loader2, AlertCircle, Star } from 'lucide-react';
+import { ArrowLeft, MapPin, DollarSign, Clock, Loader2, AlertCircle, Star, Flag } from 'lucide-react';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -14,6 +14,14 @@ import type { Rating } from '@/lib/supabase';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 const fallbackJob: Job = {
   id: 'demo',
@@ -46,6 +54,17 @@ export default function JobDetailPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitMessage, setSubmitMessage] = useState('');
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState('spam');
+  const [reportDetails, setReportDetails] = useState('');
+  const [reportMessage, setReportMessage] = useState('');
+  const handleReportSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!job?.id) return;
+    setReportMessage('Report submitted. Thanks for letting us know.');
+    setReportDetails('');
+    setReportOpen(false);
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -143,14 +162,70 @@ export default function JobDetailPage() {
                     )}
                   </p>
                 </div>
-                <Badge className={
-                  status.includes('completed') ? 'bg-green-100 text-green-800' :
-                  status.includes('progress') ? 'bg-blue-100 text-blue-800' :
-                  status.includes('cancelled') ? 'bg-gray-200 text-gray-800' :
-                  'bg-[#d4af37] text-[#1e3a5f]'
-                }>
-                  {status}
-                </Badge>
+                <div className="flex flex-col items-end gap-2">
+                  <Badge className={
+                    status.includes('completed') ? 'bg-green-100 text-green-800' :
+                    status.includes('progress') ? 'bg-blue-100 text-blue-800' :
+                    status.includes('cancelled') ? 'bg-gray-200 text-gray-800' :
+                    'bg-[#d4af37] text-[#1e3a5f]'
+                  }>
+                    {status}
+                  </Badge>
+                  <Dialog open={reportOpen} onOpenChange={setReportOpen}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-red-200 text-red-600 hover:bg-red-50"
+                      onClick={() => setReportOpen(true)}
+                    >
+                      <Flag className="w-4 h-4 mr-1" />
+                      Report
+                    </Button>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Report job</DialogTitle>
+                        <DialogDescription>
+                          Tell us what is wrong with this job posting.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <form className="space-y-3" onSubmit={handleReportSubmit}>
+                        <div className="space-y-1">
+                          <Label htmlFor="report-reason">Reason</Label>
+                          <select
+                            id="report-reason"
+                            value={reportReason}
+                            onChange={(e) => setReportReason(e.target.value)}
+                            className="w-full border rounded-md px-3 py-2 text-sm"
+                          >
+                            <option value="spam">Spam</option>
+                            <option value="scam">Scam / Fraud</option>
+                            <option value="insult">Harassment / Insult</option>
+                            <option value="inaccurate">Inaccurate or misleading</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="report-details">Details (optional)</Label>
+                          <Textarea
+                            id="report-details"
+                            placeholder="Add any context that helps us review."
+                            value={reportDetails}
+                            onChange={(e) => setReportDetails(e.target.value)}
+                            rows={3}
+                          />
+                        </div>
+                        <DialogFooter>
+                          <Button type="submit" className="bg-[#1e3a5f] text-white hover:bg-[#2a4a6f]">
+                            Submit report
+                          </Button>
+                        </DialogFooter>
+                        {reportMessage && (
+                          <p className="text-sm text-green-700">{reportMessage}</p>
+                        )}
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">

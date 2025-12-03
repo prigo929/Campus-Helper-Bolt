@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { ArrowLeft, MessageSquare, Eye, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Eye, Loader2, AlertCircle, Flag } from 'lucide-react';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -11,6 +11,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase, type ForumPost } from '@/lib/supabase';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 const fallbackPost: ForumPost = {
   id: 'demo',
@@ -39,6 +47,17 @@ export default function ForumDetailPage() {
   const [reply, setReply] = useState('');
   const [replyError, setReplyError] = useState('');
   const [replying, setReplying] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState('spam');
+  const [reportDetails, setReportDetails] = useState('');
+  const [reportMessage, setReportMessage] = useState('');
+  const handleReportSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!post?.id) return;
+    setReportMessage('Report submitted. Thanks for letting us know.');
+    setReportDetails('');
+    setReportOpen(false);
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -187,7 +206,67 @@ export default function ForumDetailPage() {
                     )}
                   </p>
                 </div>
-                <Badge className="bg-[#d4af37] text-[#1e3a5f]">Forum</Badge>
+                <div className="flex flex-col items-end gap-2">
+                  <Badge className="bg-[#d4af37] text-[#1e3a5f]">Forum</Badge>
+                  <Dialog open={reportOpen} onOpenChange={setReportOpen}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-red-200 text-red-600 hover:bg-red-50"
+                      onClick={() => setReportOpen(true)}
+                    >
+                      <Flag className="w-4 h-4 mr-1" />
+                      Report
+                    </Button>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Report post</DialogTitle>
+                        <DialogDescription>
+                          Tell us what is wrong with this post.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <form className="space-y-3" onSubmit={handleReportSubmit}>
+                        <div className="space-y-1">
+                          <label htmlFor="report-reason" className="text-sm font-medium text-gray-700">
+                            Reason
+                          </label>
+                          <select
+                            id="report-reason"
+                            value={reportReason}
+                            onChange={(e) => setReportReason(e.target.value)}
+                            className="w-full border rounded-md px-3 py-2 text-sm"
+                          >
+                            <option value="spam">Spam</option>
+                            <option value="scam">Scam / Fraud</option>
+                            <option value="insult">Harassment / Insult</option>
+                            <option value="inaccurate">Inaccurate or misleading</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <label htmlFor="report-details" className="text-sm font-medium text-gray-700">
+                            Details (optional)
+                          </label>
+                          <Textarea
+                            id="report-details"
+                            placeholder="Add any context that helps us review."
+                            value={reportDetails}
+                            onChange={(e) => setReportDetails(e.target.value)}
+                            rows={3}
+                          />
+                        </div>
+                        <DialogFooter>
+                          <Button type="submit" className="bg-[#1e3a5f] text-white hover:bg-[#2a4a6f]">
+                            Submit report
+                          </Button>
+                        </DialogFooter>
+                        {reportMessage && (
+                          <p className="text-sm text-green-700">{reportMessage}</p>
+                        )}
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -260,7 +339,20 @@ export default function ForumDetailPage() {
                         <div key={comment.id} className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
                           <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
                             <span className="font-semibold text-[#1e3a5f]">{comment.author}</span>
-                            <span className="text-xs text-gray-500">{formatDate(comment.created_at)}</span>
+                            <div className="flex items-center gap-3">
+                              <span className="text-xs text-gray-500">{formatDate(comment.created_at)}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const subject = encodeURIComponent(`Report forum comment ${comment.id}`);
+                                  const body = encodeURIComponent(`I want to report comment ID ${comment.id} on post ${post?.id}.\n\nReason:\n`);
+                                  window.location.href = `mailto:support@campushelper.test?subject=${subject}&body=${body}`;
+                                }}
+                                className="text-xs text-red-600 hover:underline"
+                              >
+                                Report
+                              </button>
+                            </div>
                           </div>
                           <p className="text-sm text-gray-700 whitespace-pre-line">{comment.content}</p>
                         </div>

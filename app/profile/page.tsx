@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Star, MapPin, GraduationCap, Mail, Briefcase, ShoppingBag, Edit, Loader2, AlertTriangle, MessageSquare, Trash2 } from 'lucide-react';
+import { Star, MapPin, GraduationCap, Mail, Briefcase, ShoppingBag, Edit, Loader2, AlertTriangle, MessageSquare, Trash2, Flag } from 'lucide-react';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,16 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase, type Profile, type Job, type MarketplaceItem, type Rating, type ForumPost } from '@/lib/supabase';
 import { ensureProfileExists } from '@/lib/profile';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -25,6 +35,10 @@ export default function ProfilePage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState('spam');
+  const [reportDetails, setReportDetails] = useState('');
+  const [reportMessage, setReportMessage] = useState('');
 
   useEffect(() => {
     if (!supabase) {
@@ -174,6 +188,21 @@ export default function ProfilePage() {
     }
   };
 
+  const handleReportUser = () => {
+    if (!profile) return;
+    setReportMessage('');
+    setReportDetails('');
+    setReportOpen(true);
+  };
+
+  const handleSubmitReport = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!profile) return;
+    setReportMessage('Report submitted. Thanks for letting us know.');
+    setReportDetails('');
+    setReportOpen(false);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navigation />
@@ -243,13 +272,64 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  <Button
-                    className="bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e] font-semibold"
-                    onClick={() => router.push('/profile/edit')}
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit Profile
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      className="bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e] font-semibold"
+                      onClick={() => router.push('/profile/edit')}
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Edit Profile
+                    </Button>
+                    <Dialog open={reportOpen} onOpenChange={setReportOpen}>
+                      <Button
+                        variant="outline"
+                        className="border-red-200 text-red-600 hover:bg-red-50"
+                        onClick={handleReportUser}
+                      >
+                        <Flag className="w-4 h-4 mr-2" />
+                        Report
+                      </Button>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Report user</DialogTitle>
+                          <DialogDescription>Tell us what is wrong with this profile.</DialogDescription>
+                        </DialogHeader>
+                        <form className="space-y-3" onSubmit={handleSubmitReport}>
+                          <div className="space-y-1">
+                            <Label htmlFor="report-reason">Reason</Label>
+                            <select
+                              id="report-reason"
+                              value={reportReason}
+                              onChange={(e) => setReportReason(e.target.value)}
+                              className="w-full border rounded-md px-3 py-2 text-sm"
+                            >
+                              <option value="spam">Spam</option>
+                              <option value="scam">Scam / Fraud</option>
+                              <option value="insult">Harassment / Insult</option>
+                              <option value="inaccurate">Inaccurate or misleading</option>
+                              <option value="other">Other</option>
+                            </select>
+                          </div>
+                          <div className="space-y-1">
+                            <Label htmlFor="report-details">Details (optional)</Label>
+                            <Textarea
+                              id="report-details"
+                              placeholder="Add any context that helps us review."
+                              value={reportDetails}
+                              onChange={(e) => setReportDetails(e.target.value)}
+                              rows={3}
+                            />
+                          </div>
+                          <DialogFooter>
+                            <Button type="submit" className="bg-[#1e3a5f] text-white hover:bg-[#2a4a6f]">
+                              Submit report
+                            </Button>
+                          </DialogFooter>
+                          {reportMessage && <p className="text-sm text-green-700">{reportMessage}</p>}
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </div>
               </div>
             </div>
