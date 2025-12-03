@@ -221,8 +221,8 @@ export function Navigation() {
           </div>
         </div>
         {mobileOpen && (
-          <div className="md:hidden mt-3 space-y-2 border-t border-white/10 pt-3">
-            <div className="grid grid-cols-2 gap-2">
+          <div className="md:hidden mt-3 space-y-2 border-t border-white/10 pt-3 pb-4">
+            <div className="grid grid-cols-2 gap-3 px-1">
               <Link href="/jobs" onClick={() => setMobileOpen(false)}>
                 <Button variant="ghost" className="w-full justify-center bg-white/10 text-white">
                   <Briefcase className="w-4 h-4 mr-2" />

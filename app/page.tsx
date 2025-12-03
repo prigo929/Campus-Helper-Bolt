@@ -396,7 +396,6 @@ export default async function Home() {
           </div>
         </section>
 
-        <HomeFinalCta />
       </main>
 
       <Footer />
