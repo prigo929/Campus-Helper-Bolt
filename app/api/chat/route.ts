@@ -3,6 +3,7 @@ import { streamText, type CoreMessage } from 'ai';
 import { createGateway } from '@ai-sdk/gateway';
 
 export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   const gateway = process.env.AI_GATEWAY_API_KEY
@@ -36,4 +37,15 @@ export async function POST(req: Request) {
   });
 
   return result.toTextStreamResponse();
+}
+
+export async function GET() {
+  return new Response(
+    JSON.stringify({
+      status: 'ok',
+      usingGateway: Boolean(process.env.AI_GATEWAY_API_KEY),
+      model: 'openai/gpt-4o-mini',
+    }),
+    { headers: { 'Content-Type': 'application/json' } }
+  );
 }
