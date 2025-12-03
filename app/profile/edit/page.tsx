@@ -35,11 +35,12 @@ export default function EditProfilePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!supabase) return;
+    const client = supabase;
+    if (!client) return;
     let active = true;
 
     const loadProfile = async () => {
-      const { data, error: sessionError } = await supabase.auth.getSession();
+      const { data, error: sessionError } = await client.auth.getSession();
       if (!active) return;
       if (sessionError) {
         setError(sessionError.message);
@@ -58,12 +59,12 @@ export default function EditProfilePage() {
 
       setSession(data.session);
       try {
-        await ensureProfileExists(supabase, data.session);
+        await ensureProfileExists(client, data.session);
       } catch (profileError) {
         console.error('Profile auto-create failed', profileError);
       }
 
-      const { data: profileData, error: profileError } = await supabase
+      const { data: profileData, error: profileError } = await client
         .from('profiles')
         .select('email, full_name, university, major, year, bio')
         .eq('id', data.session.user.id)
@@ -96,7 +97,8 @@ export default function EditProfilePage() {
     setError('');
     setMessage('');
 
-    if (!supabase) {
+    const client = supabase;
+    if (!client) {
       setError('Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_* env vars.');
       return;
     }
@@ -122,7 +124,7 @@ export default function EditProfilePage() {
       bio: bio.trim(),
     };
 
-    const { error: updateError } = await supabase
+    const { error: updateError } = await client
       .from('profiles')
       .update(updates)
       .eq('id', session.user.id);
@@ -134,7 +136,7 @@ export default function EditProfilePage() {
     }
 
     // Keep auth metadata loosely in sync for downstream usage.
-    await supabase.auth.updateUser({
+    await client.auth.updateUser({
       data: {
         full_name: updates.full_name,
         university: updates.university,

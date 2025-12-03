@@ -147,7 +147,7 @@ export default function MarketplaceDetailPage() {
       if (!sellerId || !supabase) return;
       const { data, error: ratingsError } = await supabase
         .from('ratings')
-        .select('id, rating, comment, created_at')
+        .select('id, rated_user_id, rater_user_id, rating, comment, transaction_type, transaction_id, created_at')
         .eq('rated_user_id', sellerId)
         .order('created_at', { ascending: false })
         .limit(5);

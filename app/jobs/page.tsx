@@ -21,9 +21,12 @@ type DisplayJob = Job & {
   posted?: string;
 };
 
+const sampleTimestamp = '2024-01-01T00:00:00Z';
+
 const sampleJobs: DisplayJob[] = [
   {
     id: '1',
+    user_id: 'demo',
     title: 'Math Tutor Needed',
     description: 'Looking for a patient math tutor for Calculus II. 2-3 sessions per week.',
     category: 'Tutoring',
@@ -31,12 +34,15 @@ const sampleJobs: DisplayJob[] = [
     pay_type: 'hourly',
     location: 'Library or Online',
     status: 'open',
+    created_at: sampleTimestamp,
+    updated_at: sampleTimestamp,
     user_name: 'Sarah Chen',
     user_rating: 4.8,
     posted: '2 days ago',
   },
   {
     id: '2',
+    user_id: 'demo',
     title: 'Research Assistant - Psychology Lab',
     description: 'Help with data collection and analysis for cognitive psychology study. 10 hours/week.',
     category: 'Research',
@@ -44,12 +50,15 @@ const sampleJobs: DisplayJob[] = [
     pay_type: 'hourly',
     location: 'Psychology Building',
     status: 'open',
+    created_at: sampleTimestamp,
+    updated_at: sampleTimestamp,
     user_name: 'Dr. Martinez',
     user_rating: 5.0,
     posted: '1 week ago',
   },
   {
     id: '3',
+    user_id: 'demo',
     title: 'Event Setup Help',
     description: 'Need 3 people to help set up tables and chairs for campus event. Quick 2-hour job.',
     category: 'Events',
@@ -57,12 +66,15 @@ const sampleJobs: DisplayJob[] = [
     pay_type: 'fixed',
     location: 'Student Union',
     status: 'open',
+    created_at: sampleTimestamp,
+    updated_at: sampleTimestamp,
     user_name: 'Campus Events',
     user_rating: 4.6,
     posted: '3 days ago',
   },
   {
     id: '4',
+    user_id: 'demo',
     title: 'Web Development Project',
     description: 'Build a simple portfolio website. Experience with React preferred.',
     category: 'Tech',
@@ -70,6 +82,8 @@ const sampleJobs: DisplayJob[] = [
     pay_type: 'fixed',
     location: 'Remote',
     status: 'open',
+    created_at: sampleTimestamp,
+    updated_at: sampleTimestamp,
     user_name: 'Michael Brown',
     user_rating: 4.9,
     posted: '5 days ago',

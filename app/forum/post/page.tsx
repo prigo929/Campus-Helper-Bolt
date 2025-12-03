@@ -104,9 +104,10 @@ export default function ForumDetailPage() {
   };
 
   async function loadComments(postId: string) {
-    if (!supabase) return;
+    const client = supabase;
+    if (!client) return;
     const fetchComments = (includeParent: boolean) =>
-      supabase
+      client
         .from('forum_comments')
         .select(
           includeParent
@@ -125,8 +126,9 @@ export default function ForumDetailPage() {
       console.error('Comments load error', commentsError);
       return;
     }
+    const rows = (data as any[]) || [];
     const mapped =
-      data?.map((c) => ({
+      rows.map((c) => ({
         id: c.id,
         content: c.content,
         created_at: c.created_at,
@@ -152,14 +154,15 @@ export default function ForumDetailPage() {
         return;
       }
 
-      if (!supabase) {
+      const client = supabase;
+      if (!client) {
         setPost(fallbackPost);
         setLoading(false);
         return;
       }
 
       setLoading(true);
-      const { data: sessionData } = await supabase.auth.getSession();
+      const { data: sessionData } = await client.auth.getSession();
       const session = sessionData.session;
       setHasSession(Boolean(session));
       if (!session) {
@@ -169,7 +172,7 @@ export default function ForumDetailPage() {
         return;
       }
 
-      const { data, error: fetchError } = await supabase
+      const { data, error: fetchError } = await client
         .from('forum_posts')
         .select('id, user_id, title, content, category, views, created_at, updated_at, profiles(full_name,email,rating,total_ratings)')
         .eq('id', id)
@@ -186,7 +189,7 @@ export default function ForumDetailPage() {
         const currentViews = data.views ?? 0;
         setViews(currentViews);
         if (!hasIncremented.current) {
-          const { error: rpcError } = await supabase.rpc('increment_forum_post_views', { post_id: id });
+          const { error: rpcError } = await client.rpc('increment_forum_post_views', { post_id: id });
           if (!rpcError) {
             setViews(currentViews + 1);
             hasIncremented.current = true;
@@ -211,7 +214,8 @@ export default function ForumDetailPage() {
   const handleReply = async () => {
     setReplyError('');
     setReplyNotice('');
-    if (!supabase) {
+    const client = supabase;
+    if (!client) {
       setReplyError('Supabase is not configured.');
       return;
     }
@@ -224,7 +228,7 @@ export default function ForumDetailPage() {
       return;
     }
     setReplying(true);
-    const { data: sessionData } = await supabase.auth.getSession();
+    const { data: sessionData } = await client.auth.getSession();
     const userId = sessionData.session?.user?.id;
     if (!userId) {
       setReplyError('Please sign in to reply.');
@@ -238,11 +242,11 @@ export default function ForumDetailPage() {
     };
     if (replyingToCommentId) payload.parent_id = replyingToCommentId;
 
-    let { error: insertError } = await supabase.from('forum_comments').insert(payload);
+    let { error: insertError } = await client.from('forum_comments').insert(payload);
     if (insertError && insertError.message?.toLowerCase().includes('parent_id')) {
       console.warn('parent_id not found; retrying insert without parent link');
       delete payload.parent_id;
-      ({ error: insertError } = await supabase.from('forum_comments').insert(payload));
+      ({ error: insertError } = await client.from('forum_comments').insert(payload));
       if (!insertError) {
         setReplyNotice('Threaded replies need the latest migration; comment added at the top level.');
       }

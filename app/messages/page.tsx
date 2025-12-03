@@ -535,7 +535,7 @@ export default function ConversationPage() {
                     <Button
                       size="sm"
                       className="bg-[#1e3a5f] text-white hover:bg-[#2a4a6f] w-full"
-                      onClick={startConversation}
+                      onClick={() => startConversation()}
                       disabled={startLoading}
                     >
                       {startLoading ? 'Starting...' : 'Start conversation'}

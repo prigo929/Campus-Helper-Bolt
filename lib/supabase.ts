@@ -21,6 +21,7 @@ export type Profile = {
   rating: number;
   total_ratings: number;
   created_at: string;
+  role?: string;
 };
 
 export type Job = {

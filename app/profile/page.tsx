@@ -44,7 +44,8 @@ export default function ProfilePage() {
   const [reportMessage, setReportMessage] = useState('');
 
   useEffect(() => {
-    if (!supabase) return;
+    const client = supabase;
+    if (!client) return;
     let active = true;
 
     const loadProfile = async () => {
@@ -52,7 +53,7 @@ export default function ProfilePage() {
       setLoading(true);
       setError('');
 
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      const { data: sessionData, error: sessionError } = await client.auth.getSession();
 
       if (sessionError) {
         setError(sessionError.message);
@@ -71,7 +72,7 @@ export default function ProfilePage() {
       setUserId(session.user.id);
 
       try {
-        await ensureProfileExists(supabase, session);
+        await ensureProfileExists(client, session);
       } catch (profileSeedError) {
         console.error('Profile auto-create failed', profileSeedError);
       }
@@ -79,32 +80,32 @@ export default function ProfilePage() {
       const userId = session.user.id;
 
       const [profileRes, jobsRes, listingsRes, reviewsRes, postsRes] = await Promise.all([
-        supabase
+        client
           .from('profiles')
           .select('id, email, full_name, university, major, year, avatar_url, bio, rating, total_ratings, created_at, role')
           .eq('id', userId)
           .single(),
-        supabase
+        client
           .from('jobs')
-          .select('id, title, status, pay_rate, pay_type, location, updated_at')
+          .select('id, user_id, title, description, category, status, pay_rate, pay_type, location, created_at, updated_at')
           .eq('user_id', userId)
           .order('updated_at', { ascending: false })
           .limit(25),
-        supabase
+        client
           .from('marketplace_items')
-          .select('id, title, price, status, created_at')
+          .select('id, user_id, title, description, category, condition, price, status, created_at, updated_at')
           .eq('user_id', userId)
           .order('created_at', { ascending: false })
           .limit(25),
-        supabase
+        client
           .from('ratings')
-          .select('id, rating, comment, created_at, rater_user_id')
+          .select('id, rated_user_id, rater_user_id, rating, comment, transaction_type, transaction_id, created_at')
           .eq('rated_user_id', userId)
           .order('created_at', { ascending: false })
           .limit(25),
-        supabase
+        client
           .from('forum_posts')
-          .select('id, title, content, category, created_at, updated_at')
+          .select('id, user_id, title, content, category, views, created_at, updated_at')
           .eq('user_id', userId)
           .order('created_at', { ascending: false })
           .limit(25),
