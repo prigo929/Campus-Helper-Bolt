@@ -6,6 +6,7 @@ Campus Helper is a full-stack web platform for university students to:
 - Buy and sell study materials (books, notes, devices)  
 - Join campus discussion forums  
 - Chat with other students in (near) real time  
+- Get smart help from an integrated **AI assistant**  
 
 It started as a university project, but the goal is to build it with **production-style architecture** using **Next.js (App Router)**, **TypeScript**, **Supabase**, **Tailwind CSS + shadcn/ui**, and **Vercel**, following a **Scrum** workflow in **Jira**.
 
@@ -13,7 +14,7 @@ It started as a university project, but the goal is to build it with **productio
 
 ## ✨ Features
 
-### Core Features (MVP)
+### Core Features
 
 - **Authentication & Profiles**
   - Email / magic link (or password) login via Supabase Auth
@@ -22,8 +23,8 @@ It started as a university project, but the goal is to build it with **productio
 
 - **Dashboard**
   - Authenticated home view after login
-  - Quick access to Jobs, Materials, Forum, Chat, Profile
-  - Snapshot of recent activity (latest jobs/posts/messages)
+  - Quick access to Jobs, Materials, Forum, Chat, Profile, AI Assistant
+  - Snapshot of recent activity (latest jobs/posts/messages/notifications)
 
 - **Jobs & Tasks Marketplace**
   - Create job/task:
@@ -32,6 +33,7 @@ It started as a university project, but the goal is to build it with **productio
   - Individual job details:
     - full description, posted by, creation time
   - Sorting & basic filtering (e.g. by category, newest first)
+  - Users can show interest/apply to jobs
 
 - **Materials Marketplace**
   - Create listings for books, notes, accessories, devices
@@ -42,7 +44,7 @@ It started as a university project, but the goal is to build it with **productio
 - **Forum**
   - Categories (e.g. General, Jobs, Materials, Campus News)
   - Create posts (title + content)
-  - Comment threads for posts
+  - Comment on posts
   - Sort by newest / recent activity
 
 - **Messaging**
@@ -59,53 +61,39 @@ It started as a university project, but the goal is to build it with **productio
 
 ---
 
-### UX & Design
-
-- Fully **responsive**:
-  - Mobile, tablet, and desktop layouts
-  - Card-based grids for jobs/materials, readable forum lists
-- **Dark-first theme** using:
-  - Navy as primary background
-  - Gold as accent/primary action
-  - Off-white / soft grays for text and surfaces
-- Component library via **shadcn/ui + Radix UI**:
-  - Buttons, inputs, dialogs, dropdowns, sheets, etc.
-- Theme switching with **next-themes** (light/dark)
-- Icons via **lucide-react**
-- Modern UX extras:
-  - Skeleton loaders
-  - Toast notifications (via `sonner`)
-  - Smooth animations and transitions (Framer Motion where needed)
-  - Optional carousels (`embla-carousel-react`) and charts (`recharts`)
-  - Command palette / quick actions via `cmdk`
-
----
-
-### Planned / Stretch Features
+### Advanced Features (Implemented)
 
 - **Ratings & Reviews**
-  - Rate users after a job or transaction
-  - Display average rating and reviews on profiles
+  - Rate users after a job or transaction (e.g. when a job is completed or a material is sold)
+  - 1–5 star ratings with optional written review
+  - Display average rating and reviews on user profiles
+  - Ratings influence profile credibility across the app
 
-- **Notifications**
-  - In-app notifications for:
+- **In-App Notifications**
+  - Notification system for:
     - new messages
     - interest/applications on your jobs
-    - comments on your posts
-  - Simple notification dropdown + “mark as read”
+    - comments on your forum posts
+    - other relevant events
+  - Notification dropdown in the UI
+  - “Mark as read” functionality so users can clear notifications
 
 - **Global Search**
-  - One search bar to find:
+  - Single search bar that can find:
     - jobs
     - materials
     - forum posts
+  - Unified search results view, grouped by content type
+  - Basic highlighting/structure so users understand where the match came from
 
-- **AI Assistant (future)**
-  - “Campus Helper AI” for:
-    - suggesting jobs/materials
-    - summarizing forum threads or notes
-    - answering common campus questions
-  - Likely built with Vercel AI SDK + a free/cheap LLM API
+- **AI Assistant – “Campus Helper AI”**
+  - Integrated AI assistant inside the app
+  - Capabilities:
+    - Suggesting jobs or materials based on user interests / queries
+    - Summarizing forum threads or long discussions
+    - Summarizing notes / text the user pastes
+    - Answering common campus-style questions (study tips, task ideas, etc.)
+  - Implemented using **Next.js AI (Vercel AI SDK)** with pluggable LLM providers
 
 ---
 
@@ -142,7 +130,7 @@ It started as a university project, but the goal is to build it with **productio
   - Auth (students + admins)
   - PostgreSQL database
   - Storage (images & files)
-  - Realtime (messaging, live updates)
+  - Realtime (messaging, notifications, live updates)
 - Supabase client:
   - Located at `lib/supabase.ts`
   - Uses `NEXT_PUBLIC_SUPABASE_URL` and anon key from `.env`
@@ -153,8 +141,18 @@ It started as a university project, but the goal is to build it with **productio
     - materials/marketplace
     - forum (posts/comments)
     - messaging (conversations/messages)
+    - ratings & reviews
+    - notifications
     - reports/moderation
     - RLS policies and indexes
+
+### AI
+
+- **Next.js AI (Vercel AI SDK)** for:
+  - Streaming chat UI
+  - Prompt management and response handling
+- LLM provider(s):
+  - Configurable via environment variables (e.g. OpenAI / Groq / Gemini / etc.)
 
 ### Tooling
 
@@ -185,9 +183,11 @@ It started as a university project, but the goal is to build it with **productio
     - `chat/`
     - `profile/`
     - `admin/` (reports, moderation)
+    - `ai/` or AI assistant entry point
+
 - Layouts:
   - `app/layout.tsx` – root shell (theme, fonts, base layout)
-  - `app/(dashboard)/layout.tsx` – dashboard layout (navbar, sidebar, etc.)
+  - `app/(dashboard)/layout.tsx` – dashboard layout (navbar, sidebar, notifications, etc.)
 
 ### Feature Modules
 
@@ -195,22 +195,27 @@ It started as a university project, but the goal is to build it with **productio
 - `features/materials`
 - `features/forum`
 - `features/messaging`
-- `features/reports` / `admin`
-- Each feature typically contains:
-  - `components/`
-  - `hooks/`
-  - `api/`
-  - `types/`
-  - `utils/`
+- `features/notifications`
+- `features/ratings`
+- `features/admin` / `features/reports`
+- `features/ai`
+
+Each feature typically contains:
+
+- `components/`
+- `hooks/`
+- `api/`
+- `types/`
+- `utils/`
 
 ### Data Access
 
 - All DB access goes through the Supabase client in `lib/supabase.ts`
-- (Optional) feature-level API abstractions in:
+- (Optionally) feature-level API abstractions in:
   - `features/*/api/*.ts`
 
 ### Styling & Components
 
 - `app/globals.css` for base resets and Tailwind layers
 - `components/ui/*` for shared UI primitives (shadcn-generated + custom)
-- `components/layout/*` for app-level layout pieces (navbar, page header, etc.)
+- `components/layout/*` for app-level layout pieces (navbar, page header, notification dropdown)
