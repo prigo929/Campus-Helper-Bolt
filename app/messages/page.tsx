@@ -298,7 +298,9 @@ export default function ConversationPage() {
   }, [conversationId, router]);
 
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length > 1) {
+      scrollToBottom();
+    }
   }, [messages]);
 
   const sendMessage = async () => {
