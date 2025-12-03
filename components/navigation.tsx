@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { Briefcase, ShoppingBag, MessageSquare, User, LogOut, Loader2 } from 'lucide-react';
+import { Briefcase, ShoppingBag, MessageSquare, User, LogOut, Loader2, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabase';
@@ -14,6 +14,7 @@ export function Navigation() {
   const [isAuthed, setIsAuthed] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -31,20 +32,25 @@ export function Navigation() {
       if (!session?.user) {
         setDisplayName('');
         setEmail('');
+        setIsAdmin(false);
         setLoading(false);
         return;
       }
 
       const baseEmail = session.user.email || '';
       setEmail(baseEmail);
+      setIsAdmin(session.user.user_metadata?.role === 'admin');
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name')
+        .select('full_name, role')
         .eq('id', session.user.id)
         .single();
 
       setDisplayName(profile?.full_name || baseEmail || 'Profile');
+      if (profile?.role === 'admin') {
+        setIsAdmin(true);
+      }
       setLoading(false);
     };
 
@@ -111,6 +117,14 @@ export function Navigation() {
           <div className="flex items-center space-x-2">
             {isAuthed ? (
               <>
+                {isAdmin && (
+                  <Link href="/admin/reports">
+                    <Button variant="outline" className="border-white/60 text-white hover:bg-white hover:text-[#1e3a5f]">
+                      <Shield className="w-4 h-4 mr-2" />
+                      Admin
+                    </Button>
+                  </Link>
+                )}
                 <Link href="/profile">
                   <Button variant="ghost" className="text-white hover:text-[#d4af37] hover:bg-[#2a4a6f] flex items-center gap-2">
                     <Avatar className="h-7 w-7 border border-white/20 bg-white/10">

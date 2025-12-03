@@ -80,7 +80,7 @@ export default function ProfilePage() {
       const [profileRes, jobsRes, listingsRes, reviewsRes, postsRes] = await Promise.all([
         supabase
           .from('profiles')
-          .select('id, email, full_name, university, major, year, avatar_url, bio, rating, total_ratings, created_at')
+          .select('id, email, full_name, university, major, year, avatar_url, bio, rating, total_ratings, created_at, role')
           .eq('id', userId)
           .single(),
         supabase
@@ -156,6 +156,7 @@ export default function ProfilePage() {
     ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     : '—';
   const bio = profile?.bio || 'Add a short bio to introduce yourself.';
+  const isAdmin = profile?.role === 'admin';
   const initials = (profile?.full_name || profile?.email || 'CH')
     .split(' ')
     .filter(Boolean)
@@ -261,15 +262,20 @@ export default function ProfilePage() {
                         {email}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center bg-[#d4af37] text-[#1e3a5f] px-3 py-1 rounded-full font-semibold">
-                        <Star className="w-4 h-4 mr-1 fill-current" />
-                        {reputation} ({totalRatings} reviews)
-                      </div>
-                      <Badge className="bg-white/20 text-white">
-                        Member since {memberSince}
-                      </Badge>
-                    </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center bg-[#d4af37] text-[#1e3a5f] px-3 py-1 rounded-full font-semibold">
+                    <Star className="w-4 h-4 mr-1 fill-current" />
+                    {reputation} ({totalRatings} reviews)
+                  </div>
+                  <Badge className="bg-white/20 text-white">
+                    Member since {memberSince}
+                  </Badge>
+                  {isAdmin && (
+                    <Badge className="bg-green-100 text-green-800">
+                      Admin
+                    </Badge>
+                  )}
+                </div>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -329,6 +335,13 @@ export default function ProfilePage() {
                         </form>
                       </DialogContent>
                     </Dialog>
+                    {isAdmin && (
+                      <Link href="/admin/reports">
+                        <Button variant="outline" className="border-[#d4af37] text-[#1e3a5f] hover:bg-[#d4af37] hover:text-[#1e3a5f]">
+                          Admin Dashboard
+                        </Button>
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>
