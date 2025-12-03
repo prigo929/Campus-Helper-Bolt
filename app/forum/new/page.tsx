@@ -20,43 +20,48 @@ const categories = ['General', 'Academic', 'Events', 'Housing', 'Other'];
 export default function NewForumPostPage() {
   const router = useRouter();
   const [session, setSession] = useState<Session | null>(null);
-  const [checkingSession, setCheckingSession] = useState(true);
+  const supabaseConfigured = Boolean(supabase);
+  const [checkingSession, setCheckingSession] = useState(() => supabaseConfigured);
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState(categories[0]);
 
-  const [error, setError] = useState('');
+  const [error, setError] = useState(() =>
+    supabaseConfigured ? '' : 'Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_* env vars.'
+  );
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!supabase) {
-      setError('Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_* env vars.');
-      setCheckingSession(false);
-      return;
-    }
+    if (!supabase) return;
+    let active = true;
 
-    supabase.auth
-      .getSession()
-      .then(async ({ data, error: sessionError }) => {
-        if (sessionError) {
-          setError(sessionError.message);
-          return;
-        }
-        if (!data.session?.user) {
-          setError('Please sign in to create a post.');
-          router.push('/sign-in');
-          return;
-        }
-        setSession(data.session);
-        try {
-          await ensureProfileExists(supabase, data.session);
-        } catch (profileError) {
-          console.error('Profile auto-create failed', profileError);
-        }
-      })
-      .finally(() => setCheckingSession(false));
+    supabase.auth.getSession().then(async ({ data, error: sessionError }) => {
+      if (!active) return;
+      if (sessionError) {
+        setError(sessionError.message);
+        setCheckingSession(false);
+        return;
+      }
+      if (!data.session?.user) {
+        setError('Please sign in to create a post.');
+        router.push('/sign-in');
+        setCheckingSession(false);
+        return;
+      }
+      setSession(data.session);
+      try {
+        await ensureProfileExists(supabase, data.session);
+      } catch (profileError) {
+        console.error('Profile auto-create failed', profileError);
+      }
+      setCheckingSession(false);
+    });
+
+    return () => {
+      active = false;
+    };
   }, [router]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {

@@ -33,21 +33,22 @@ export default function ProfilePage() {
   const [reviews, setReviews] = useState<Rating[]>([]);
   const [posts, setPosts] = useState<ForumPost[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const supabaseConfigured = Boolean(supabase);
+  const [loading, setLoading] = useState(() => supabaseConfigured);
+  const [error, setError] = useState(() =>
+    supabaseConfigured ? '' : 'Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_* env vars.'
+  );
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState('spam');
   const [reportDetails, setReportDetails] = useState('');
   const [reportMessage, setReportMessage] = useState('');
 
   useEffect(() => {
-    if (!supabase) {
-      setError('Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_* env vars.');
-      setLoading(false);
-      return;
-    }
+    if (!supabase) return;
+    let active = true;
 
     const loadProfile = async () => {
+      if (!active) return;
       setLoading(true);
       setError('');
 
@@ -143,6 +144,10 @@ export default function ProfilePage() {
     };
 
     loadProfile();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const displayName = profile?.full_name || 'Your profile';

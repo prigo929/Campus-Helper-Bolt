@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, MessageSquare, Eye, Loader2, AlertCircle, Flag } from 'lucide-react';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
@@ -44,6 +44,31 @@ type ThreadedComment = FlatComment & {
   replies: ThreadedComment[];
 };
 
+function buildThread(items: FlatComment[]): ThreadedComment[] {
+  const map = new Map<string, ThreadedComment>();
+  const roots: ThreadedComment[] = [];
+
+  items.forEach((item) => {
+    map.set(item.id, { ...item, replies: [] });
+  });
+
+  map.forEach((comment) => {
+    if (comment.parent_id && map.has(comment.parent_id)) {
+      map.get(comment.parent_id)!.replies.push(comment);
+    } else {
+      roots.push(comment);
+    }
+  });
+
+  const sortThread = (list: ThreadedComment[]) => {
+    list.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    list.forEach((reply) => sortThread(reply.replies));
+  };
+
+  sortThread(roots);
+  return roots;
+}
+
 export default function ForumDetailPage() {
   const router = useRouter();
   const params = useSearchParams();
@@ -69,6 +94,7 @@ export default function ForumDetailPage() {
   const [views, setViews] = useState<number | null>(null);
   const [hasSession, setHasSession] = useState(false);
   const hasIncremented = useRef(false);
+
   const handleReportSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!post?.id) return;
@@ -76,6 +102,47 @@ export default function ForumDetailPage() {
     setReportDetails('');
     setReportOpen(false);
   };
+
+  async function loadComments(postId: string) {
+    if (!supabase) return;
+    const fetchComments = (includeParent: boolean) =>
+      supabase
+        .from('forum_comments')
+        .select(
+          includeParent
+            ? 'id, content, created_at, user_id, parent_id, profiles(full_name,email)'
+            : 'id, content, created_at, user_id, profiles(full_name,email)'
+        )
+        .eq('post_id', postId)
+        .order('created_at', { ascending: true });
+
+    let { data, error: commentsError } = await fetchComments(true);
+    if (commentsError && commentsError.message?.toLowerCase().includes('parent_id')) {
+      console.warn('parent_id missing in schema cache; falling back to flat comments');
+      ({ data, error: commentsError } = await fetchComments(false));
+    }
+    if (commentsError) {
+      console.error('Comments load error', commentsError);
+      return;
+    }
+    const mapped =
+      data?.map((c) => ({
+        id: c.id,
+        content: c.content,
+        created_at: c.created_at,
+        user_id: c.user_id,
+        parent_id: (c as any).parent_id || null,
+        author: (c as any).profiles?.full_name || (c as any).profiles?.email || 'Campus Helper user',
+      })) || [];
+
+    setCommentLookup(
+      mapped.reduce((acc, curr) => {
+        acc[curr.id] = curr;
+        return acc;
+      }, {} as Record<string, FlatComment>)
+    );
+    setComments(buildThread(mapped));
+  }
 
   useEffect(() => {
     const load = async () => {
@@ -129,81 +196,12 @@ export default function ForumDetailPage() {
         }
       }
 
+      await loadComments(id);
       setLoading(false);
     };
 
     load();
   }, [id]);
-
-  const buildThread = useCallback((items: FlatComment[]): ThreadedComment[] => {
-    const map = new Map<string, ThreadedComment>();
-    const roots: ThreadedComment[] = [];
-
-    items.forEach((item) => {
-      map.set(item.id, { ...item, replies: [] });
-    });
-
-    map.forEach((comment) => {
-      if (comment.parent_id && map.has(comment.parent_id)) {
-        map.get(comment.parent_id)!.replies.push(comment);
-      } else {
-        roots.push(comment);
-      }
-    });
-
-    const sortThread = (list: ThreadedComment[]) => {
-      list.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-      list.forEach((reply) => sortThread(reply.replies));
-    };
-
-    sortThread(roots);
-    return roots;
-  }, []);
-
-  const loadComments = useCallback(async () => {
-    if (!supabase || !post?.id || !hasSession) return;
-    const fetchComments = (includeParent: boolean) =>
-      supabase
-        .from('forum_comments')
-        .select(
-          includeParent
-            ? 'id, content, created_at, user_id, parent_id, profiles(full_name,email)'
-            : 'id, content, created_at, user_id, profiles(full_name,email)'
-        )
-        .eq('post_id', post.id)
-        .order('created_at', { ascending: true });
-
-    let { data, error: commentsError } = await fetchComments(true);
-    if (commentsError && commentsError.message?.toLowerCase().includes('parent_id')) {
-      console.warn('parent_id missing in schema cache; falling back to flat comments');
-      ({ data, error: commentsError } = await fetchComments(false));
-    }
-    if (commentsError) {
-      console.error('Comments load error', commentsError);
-      return;
-    }
-    const mapped =
-      data?.map((c) => ({
-        id: c.id,
-        content: c.content,
-        created_at: c.created_at,
-        user_id: c.user_id,
-        parent_id: (c as any).parent_id || null,
-        author: (c as any).profiles?.full_name || (c as any).profiles?.email || 'Campus Helper user',
-      })) || [];
-
-    setCommentLookup(
-      mapped.reduce((acc, curr) => {
-        acc[curr.id] = curr;
-        return acc;
-      }, {} as Record<string, FlatComment>)
-    );
-    setComments(buildThread(mapped));
-  }, [post?.id, hasSession, buildThread]);
-
-  useEffect(() => {
-    loadComments();
-  }, [loadComments]);
 
   const formatDate = (value?: string | null) =>
     value ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
@@ -256,7 +254,7 @@ export default function ForumDetailPage() {
     }
     setReply('');
     setReplyingToCommentId(null);
-    await loadComments();
+    await loadComments(post.id);
     setReplying(false);
   };
 

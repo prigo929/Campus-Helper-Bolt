@@ -17,8 +17,9 @@ import type { Session } from '@supabase/supabase-js';
 export default function EditProfilePage() {
   const router = useRouter();
   const [session, setSession] = useState<Session | null>(null);
-  const [checkingSession, setCheckingSession] = useState(true);
-  const [loadingProfile, setLoadingProfile] = useState(true);
+  const supabaseConfigured = Boolean(supabase);
+  const [checkingSession, setCheckingSession] = useState(() => supabaseConfigured);
+  const [loadingProfile, setLoadingProfile] = useState(() => supabaseConfigured);
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -27,20 +28,19 @@ export default function EditProfilePage() {
   const [year, setYear] = useState('');
   const [bio, setBio] = useState('');
 
-  const [error, setError] = useState('');
+  const [error, setError] = useState(() =>
+    supabaseConfigured ? '' : 'Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_* env vars.'
+  );
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!supabase) {
-      setError('Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_* env vars.');
-      setCheckingSession(false);
-      setLoadingProfile(false);
-      return;
-    }
+    if (!supabase) return;
+    let active = true;
 
     const loadProfile = async () => {
       const { data, error: sessionError } = await supabase.auth.getSession();
+      if (!active) return;
       if (sessionError) {
         setError(sessionError.message);
         setCheckingSession(false);
@@ -85,6 +85,10 @@ export default function EditProfilePage() {
     };
 
     loadProfile();
+
+    return () => {
+      active = false;
+    };
   }, [router]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {

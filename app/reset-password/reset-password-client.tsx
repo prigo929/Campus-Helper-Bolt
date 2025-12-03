@@ -19,40 +19,53 @@ type RecoveryTokens = {
 
 export default function ResetPasswordClient() {
   const router = useRouter();
-  const [tokens, setTokens] = useState<RecoveryTokens>({ access_token: null, refresh_token: null });
+  const initialTokens: RecoveryTokens =
+    typeof window !== 'undefined'
+      ? (() => {
+          const hashParams = new URLSearchParams(window.location.hash.slice(1));
+          return {
+            access_token: hashParams.get('access_token'),
+            refresh_token: hashParams.get('refresh_token'),
+          };
+        })()
+      : { access_token: null, refresh_token: null };
+
+  const [tokens, setTokens] = useState<RecoveryTokens>(initialTokens);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [isSettingSession, setIsSettingSession] = useState(false);
+  const [isSettingSession, setIsSettingSession] = useState(
+    Boolean(initialTokens.access_token && initialTokens.refresh_token)
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!supabase || typeof window === 'undefined') return;
+    if (!supabase || !tokens.access_token || !tokens.refresh_token) return;
+    let active = true;
 
-    const hashParams = new URLSearchParams(window.location.hash.slice(1));
-    const access_token = hashParams.get('access_token');
-    const refresh_token = hashParams.get('refresh_token');
-
-    if (!access_token || !refresh_token) {
-      return;
-    }
-
-    setIsSettingSession(true);
     supabase.auth
-      .setSession({ access_token, refresh_token })
+      .setSession({ access_token: tokens.access_token, refresh_token: tokens.refresh_token })
       .then(({ error: setSessionError }) => {
+        if (!active) return;
         if (setSessionError) {
           setError(setSessionError.message);
           return;
         }
-        setTokens({ access_token, refresh_token });
+        setTokens({ access_token: tokens.access_token, refresh_token: tokens.refresh_token });
       })
       .catch((err: unknown) => {
+        if (!active) return;
         setError(err instanceof Error ? err.message : 'Could not restore the reset session.');
       })
-      .finally(() => setIsSettingSession(false));
-  }, []);
+      .finally(() => {
+        if (active) setIsSettingSession(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [tokens.access_token, tokens.refresh_token]);
 
   const handleUpdatePassword = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -173,7 +186,7 @@ export default function ResetPasswordClient() {
                     <div>
                       <p className="font-semibold">Need a reset link?</p>
                       <p>
-                        Start from the sign-in page and choose "Forgot password?" after entering your campus email. We will email you a secure link.
+                        Start from the sign-in page and choose Forgot password? after entering your campus email. We will email you a secure link.
                       </p>
                     </div>
                   </div>
