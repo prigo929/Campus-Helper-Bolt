@@ -190,6 +190,15 @@ export default function JobDetailPage() {
                       poster
                     )}
                   </p>
+                  {posterEmail && (
+                    <div className="mt-2">
+                      <Link href={`mailto:${posterEmail}?subject=${encodeURIComponent(`Job: ${job?.title || ''}`)}`}>
+                        <Button size="sm" className="bg-[#1e3a5f] text-white hover:bg-[#2a4a6f]">
+                          Contact poster
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <Badge className={
@@ -200,13 +209,6 @@ export default function JobDetailPage() {
                   }>
                     {status}
                   </Badge>
-                  {posterEmail && (
-                    <Link href={`mailto:${posterEmail}?subject=${encodeURIComponent(`Job: ${job?.title || ''}`)}`}>
-                      <Button size="sm" className="bg-[#1e3a5f] text-white hover:bg-[#2a4a6f] w-full">
-                        Contact poster
-                      </Button>
-                    </Link>
-                  )}
                   <Dialog open={reportOpen} onOpenChange={setReportOpen}>
                     <Button
                       variant="outline"

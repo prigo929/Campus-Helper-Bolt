@@ -190,6 +190,15 @@ export default function MarketplaceDetailPage() {
                       seller
                     )}
                   </p>
+                  {sellerEmail && (
+                    <div className="mt-2">
+                      <Link href={`mailto:${sellerEmail}?subject=${encodeURIComponent(`Marketplace listing: ${item?.title || ''}`)}`}>
+                        <Button size="sm" className="bg-[#1e3a5f] text-white hover:bg-[#2a4a6f]">
+                          Contact seller
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <Badge className={
@@ -199,13 +208,6 @@ export default function MarketplaceDetailPage() {
                   }>
                     {item?.status || 'available'}
                   </Badge>
-                  {sellerEmail && (
-                    <Link href={`mailto:${sellerEmail}?subject=${encodeURIComponent(`Marketplace listing: ${item?.title || ''}`)}`}>
-                      <Button size="sm" className="bg-[#1e3a5f] text-white hover:bg-[#2a4a6f] w-full">
-                        Contact seller
-                      </Button>
-                    </Link>
-                  )}
                   <Dialog open={reportOpen} onOpenChange={setReportOpen}>
                     <Button
                       variant="outline"
