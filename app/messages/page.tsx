@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Send } from 'lucide-react';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
@@ -20,12 +20,11 @@ type DisplayMessage = {
 };
 
 export default function ConversationPage() {
-  const params = useParams();
+  const params = useSearchParams();
   const router = useRouter();
-  const conversationId = (params?.id as string) || '';
+  const conversationId = params.get('id') || '';
 
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
-  const [participants, setParticipants] = useState<string[]>([]);
   const [otherName, setOtherName] = useState('Conversation');
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
@@ -42,7 +41,7 @@ export default function ConversationPage() {
   useEffect(() => {
     const load = async () => {
       if (!conversationId) {
-        setError('No conversation found.');
+        setError('No conversation selected.');
         setLoading(false);
         return;
       }
@@ -60,7 +59,6 @@ export default function ConversationPage() {
       }
       setUserId(currentUserId);
 
-      // Load participants
       const { data: participantRows, error: participantsError } = await supabase
         .from('conversation_participants')
         .select('user_id, profiles(full_name,email)')
@@ -72,20 +70,11 @@ export default function ConversationPage() {
         return;
       }
 
-      const names: string[] = [];
-      const ids: string[] = [];
-      participantRows?.forEach((p) => {
-        ids.push(p.user_id);
-        const name = (p as any).profiles?.full_name || (p as any).profiles?.email || 'Campus Helper user';
-        names.push(name);
-      });
-      setParticipants(ids);
       const other = participantRows?.find((p) => p.user_id !== currentUserId);
       setOtherName(
-        (other as any)?.profiles?.full_name || (other as any)?.profiles?.email || names.find(Boolean) || 'Conversation'
+        (other as any)?.profiles?.full_name || (other as any)?.profiles?.email || 'Conversation'
       );
 
-      // Load existing messages
       const { data: messageRows, error: messagesError } = await supabase
         .from('messages')
         .select('id, body, sender_id, created_at, profiles(full_name,email)')
@@ -109,7 +98,6 @@ export default function ConversationPage() {
       setMessages(mapped);
       setLoading(false);
 
-      // Subscribe for realtime inserts
       if (!channelRef.current) {
         channelRef.current = supabase
           .channel(`conversation-${conversationId}`)
@@ -162,7 +150,7 @@ export default function ConversationPage() {
       setError('Please sign in to send messages.');
       return;
     }
-    if (!message.trim()) return;
+    if (!message.trim() || !conversationId) return;
     setSending(true);
     const { error: insertError } = await supabase.from('messages').insert({
       conversation_id: conversationId,

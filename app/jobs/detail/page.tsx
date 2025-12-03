@@ -242,7 +242,7 @@ export default function JobDetailPage() {
     }
 
     setContactLoading(false);
-    router.push(`/messages/${conversationId}`);
+    router.push(`/messages?id=${conversationId}`);
   };
 
   return (

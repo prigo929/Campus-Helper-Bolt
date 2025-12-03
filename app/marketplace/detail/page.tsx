@@ -241,7 +241,7 @@ export default function MarketplaceDetailPage() {
     }
 
     setContactLoading(false);
-    router.push(`/messages/${conversationId}`);
+    router.push(`/messages?id=${conversationId}`);
   };
 
   return (
