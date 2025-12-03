@@ -109,12 +109,16 @@ export function Navigation() {
             </Link>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             {isAuthed ? (
               <>
                 <NotificationsDropdown />
                 <Link href="/messages" aria-label="Messages">
-                  <Button variant="ghost" className="text-white hover:text-[#d4af37] hover:bg-[#2a4a6f] p-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-10 w-10 text-white hover:text-[#d4af37] hover:bg-[#2a4a6f]"
+                  >
                     <MessageSquare className="w-5 h-5" />
                   </Button>
                 </Link>
@@ -130,8 +134,11 @@ export function Navigation() {
                   </Link>
                 )}
                 <Link href="/profile">
-                  <Button variant="ghost" className="text-white hover:text-[#d4af37] hover:bg-[#2a4a6f] flex items-center gap-2">
-                    <Avatar className="h-7 w-7 border border-white/20 bg-white/10">
+                  <Button
+                    variant="ghost"
+                    className="text-white hover:text-[#d4af37] hover:bg-[#2a4a6f] flex items-center gap-2 h-10 px-2"
+                  >
+                    <Avatar className="h-8 w-8 border border-white/20 bg-white/10">
                       <AvatarFallback className="bg-[#d4af37] text-[#1e3a5f] text-xs font-semibold">
                         {initials}
                       </AvatarFallback>
@@ -165,7 +172,8 @@ export function Navigation() {
             )}
             <Button
               variant="ghost"
-              className="text-white hover:text-[#d4af37] hover:bg-[#2a4a6f] md:hidden"
+              size="icon"
+              className="h-10 w-10 text-white hover:text-[#d4af37] hover:bg-[#2a4a6f] md:hidden"
               aria-label="Toggle menu"
               onClick={() => setMobileOpen((prev) => !prev)}
             >

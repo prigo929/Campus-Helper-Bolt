@@ -36,7 +36,7 @@ export function NotificationsDropdown() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="relative text-white hover:text-[#d4af37] hover:bg-[#2a4a6f] p-2"
+          className="relative text-white hover:text-[#d4af37] hover:bg-[#2a4a6f] p-2 h-10 w-10"
           aria-label="Notifications"
         >
           <Bell className="w-5 h-5" />
