@@ -104,12 +104,20 @@ export function AiChatPanel() {
                     <div
                       key={message.id}
                       className={cn(
-                        'flex gap-2 rounded-xl border p-3 shadow-sm',
+                        'relative flex gap-2 rounded-xl border p-3 shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg animate-chat-pop',
                         isUser
                           ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]'
                           : 'bg-white text-gray-900 border-gray-200'
                       )}
                     >
+                      <span
+                        className={cn(
+                          'pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500',
+                          isUser
+                            ? 'bg-gradient-to-r from-white/10 via-white/5 to-white/0'
+                            : 'bg-gradient-to-r from-purple-500/10 via-indigo-400/10 to-transparent'
+                        )}
+                      />
                       <div className="mt-1">
                         {isUser ? (
                           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-xs font-semibold uppercase">
