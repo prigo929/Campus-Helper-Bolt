@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { ArrowLeft, Mail, MapPin, GraduationCap, Loader2, AlertCircle } from 'lucide-react';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
@@ -12,6 +12,14 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { supabase, type Profile } from '@/lib/supabase';
 
 export default function PublicProfilePage() {
+  return (
+    <Suspense fallback={<ProfileSuspenseFallback />}>
+      <PublicProfileContent />
+    </Suspense>
+  );
+}
+
+function PublicProfileContent() {
   const router = useRouter();
   const params = useSearchParams();
   const id = params.get('id') || '';
@@ -122,6 +130,23 @@ export default function PublicProfilePage() {
               )}
             </CardContent>
           </Card>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+function ProfileSuspenseFallback() {
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Navigation />
+      <main className="flex-1">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Loading profile...
+          </div>
         </div>
       </main>
       <Footer />

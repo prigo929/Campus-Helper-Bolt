@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Send, MessageSquare } from 'lucide-react';
 import { Navigation } from '@/components/navigation';
@@ -34,6 +34,14 @@ type TargetProfile = {
 };
 
 export default function ConversationPage() {
+  return (
+    <Suspense fallback={<MessagesSuspenseFallback />}>
+      <ConversationPageContent />
+    </Suspense>
+  );
+}
+
+function ConversationPageContent() {
   const params = useSearchParams();
   const router = useRouter();
   const conversationId = params.get('id') || '';
@@ -608,6 +616,20 @@ export default function ConversationPage() {
         </div>
       </main>
 
+      <Footer />
+    </div>
+  );
+}
+
+function MessagesSuspenseFallback() {
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Navigation />
+      <main className="flex-1">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <p className="text-sm text-gray-600">Loading messages...</p>
+        </div>
+      </main>
       <Footer />
     </div>
   );

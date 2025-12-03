@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, ShieldAlert, CheckCircle, Trash2, Ban } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -22,6 +23,121 @@ type Report = {
   status: string;
   created_at: string;
 };
+
+type ReportCardProps = {
+  report: Report;
+  showActions?: boolean;
+  onMarkReviewed?: (id: string) => void | Promise<void>;
+  onDeleteContent?: (report: Report) => void | Promise<void>;
+  onBanUser?: (userId: string | null) => void | Promise<void>;
+};
+
+type ReportSectionProps = {
+  title: string;
+  description: string;
+  emptyText: string;
+  icon: LucideIcon;
+  reports: Report[];
+  showActions?: boolean;
+  onMarkReviewed?: (id: string) => void | Promise<void>;
+  onDeleteContent?: (report: Report) => void | Promise<void>;
+  onBanUser?: (userId: string | null) => void | Promise<void>;
+};
+
+const REPORT_FIELDS =
+  'id, target_type, target_table, target_id, target_user_id, reporter_user_id, reason, details, status, created_at';
+
+const formatDate = (value: string) => new Date(value).toLocaleString();
+
+const ReportCard = ({
+  report,
+  showActions = false,
+  onMarkReviewed,
+  onDeleteContent,
+  onBanUser,
+}: ReportCardProps) => (
+  <div className="space-y-2 rounded-md border bg-white p-3">
+    <div className="flex items-center justify-between">
+      <div className="text-sm text-gray-700">
+        <span className="font-semibold text-[#1e3a5f]">{report.target_type}</span>{' '}
+        on <span className="text-gray-800">{report.target_table}</span>
+      </div>
+      <Badge>{report.status}</Badge>
+    </div>
+    <div className="text-sm text-gray-600">
+      Reason: <span className="font-semibold text-gray-800">{report.reason}</span>
+      {report.details && <div className="mt-1">Details: {report.details}</div>}
+    </div>
+    <div className="text-xs text-gray-500">Reported at {formatDate(report.created_at)}</div>
+    {showActions && (
+      <div className="flex flex-wrap gap-2">
+        {onMarkReviewed && (
+          <Button variant="outline" size="sm" onClick={() => onMarkReviewed(report.id)}>
+            <CheckCircle className="mr-1 h-4 w-4" />
+            Mark reviewed
+          </Button>
+        )}
+        {onDeleteContent && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-red-200 text-red-600 hover:bg-red-50"
+            onClick={() => onDeleteContent(report)}
+          >
+            <Trash2 className="mr-1 h-4 w-4" />
+            Delete content
+          </Button>
+        )}
+        {onBanUser && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-red-200 text-red-600 hover:bg-red-50"
+            onClick={() => onBanUser(report.target_user_id)}
+          >
+            <Ban className="mr-1 h-4 w-4" />
+            Ban user
+          </Button>
+        )}
+      </div>
+    )}
+  </div>
+);
+
+const ReportSection = ({
+  title,
+  description,
+  emptyText,
+  icon: Icon,
+  reports,
+  showActions = false,
+  onMarkReviewed,
+  onDeleteContent,
+  onBanUser,
+}: ReportSectionProps) => (
+  <Card className="border-2">
+    <CardHeader>
+      <CardTitle className="flex items-center gap-2 text-lg text-[#1e3a5f]">
+        <Icon className="h-4 w-4" />
+        {title}
+      </CardTitle>
+      <CardDescription>{description}</CardDescription>
+    </CardHeader>
+    <CardContent className="space-y-3">
+      {reports.length === 0 && <p className="text-sm text-gray-600">{emptyText}</p>}
+      {reports.map((report) => (
+        <ReportCard
+          key={report.id}
+          report={report}
+          showActions={showActions}
+          onMarkReviewed={onMarkReviewed}
+          onDeleteContent={onDeleteContent}
+          onBanUser={onBanUser}
+        />
+      ))}
+    </CardContent>
+  </Card>
+);
 
 export default function AdminReportsPage() {
   const router = useRouter();
@@ -48,7 +164,7 @@ export default function AdminReportsPage() {
 
       const { data, error: fetchError } = await supabase
         .from('reports')
-        .select('id, target_type, target_table, target_id, target_user_id, reporter_user_id, reason, details, status, created_at')
+        .select(REPORT_FIELDS)
         .order('created_at', { ascending: false });
 
       if (fetchError) {
@@ -133,77 +249,25 @@ export default function AdminReportsPage() {
 
           {!loading && !error && (
             <div className="space-y-6">
-              <Card className="border-2">
-                <CardHeader>
-                  <CardTitle className="text-lg text-[#1e3a5f] flex items-center gap-2">
-                    <ShieldAlert className="w-4 h-4" />
-                    Open Reports
-                  </CardTitle>
-                  <CardDescription>{openReports.length} open</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {openReports.length === 0 && <p className="text-sm text-gray-600">No open reports.</p>}
-                  {openReports.map((report) => (
-                    <div key={report.id} className="border rounded-md p-3 space-y-2 bg-white">
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm text-gray-700">
-                          <span className="font-semibold text-[#1e3a5f]">{report.target_type}</span>{' '}
-                          on <span className="text-gray-800">{report.target_table}</span>
-                        </div>
-                        <Badge>{report.status}</Badge>
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        Reason: <span className="font-semibold text-gray-800">{report.reason}</span>
-                        {report.details && <div className="mt-1">Details: {report.details}</div>}
-                      </div>
-                      <div className="text-xs text-gray-500">Reported at {new Date(report.created_at).toLocaleString()}</div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" onClick={() => handleMarkReviewed(report.id)}>
-                          <CheckCircle className="w-4 h-4 mr-1" />
-                          Mark reviewed
-                        </Button>
-                        <Button variant="outline" size="sm" className="border-red-200 text-red-600 hover:bg-red-50" onClick={() => handleDeleteContent(report)}>
-                          <Trash2 className="w-4 h-4 mr-1" />
-                          Delete content
-                        </Button>
-                        <Button variant="outline" size="sm" className="border-red-200 text-red-600 hover:bg-red-50" onClick={() => handleBanUser(report.target_user_id)}>
-                          <Ban className="w-4 h-4 mr-1" />
-                          Ban user
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
+              <ReportSection
+                title="Open Reports"
+                description={`${openReports.length} open`}
+                emptyText="No open reports."
+                icon={ShieldAlert}
+                reports={openReports}
+                showActions
+                onMarkReviewed={handleMarkReviewed}
+                onDeleteContent={handleDeleteContent}
+                onBanUser={handleBanUser}
+              />
 
-              <Card className="border-2">
-                <CardHeader>
-                  <CardTitle className="text-lg text-[#1e3a5f] flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4" />
-                    Reviewed Reports
-                  </CardTitle>
-                  <CardDescription>{reviewedReports.length} reviewed</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {reviewedReports.length === 0 && <p className="text-sm text-gray-600">No reviewed reports.</p>}
-                  {reviewedReports.map((report) => (
-                    <div key={report.id} className="border rounded-md p-3 space-y-2 bg-white">
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm text-gray-700">
-                          <span className="font-semibold text-[#1e3a5f]">{report.target_type}</span>{' '}
-                          on <span className="text-gray-800">{report.target_table}</span>
-                        </div>
-                        <Badge>{report.status}</Badge>
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        Reason: <span className="font-semibold text-gray-800">{report.reason}</span>
-                        {report.details && <div className="mt-1">Details: {report.details}</div>}
-                      </div>
-                      <div className="text-xs text-gray-500">Reported at {new Date(report.created_at).toLocaleString()}</div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
+              <ReportSection
+                title="Reviewed Reports"
+                description={`${reviewedReports.length} reviewed`}
+                emptyText="No reviewed reports."
+                icon={CheckCircle}
+                reports={reviewedReports}
+              />
             </div>
           )}
         </div>

@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { ArrowLeft, MapPin, DollarSign, Clock, Loader2, AlertCircle, Star, Flag } from 'lucide-react';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
@@ -38,6 +38,14 @@ const fallbackJob: Job = {
 };
 
 export default function JobDetailPage() {
+  return (
+    <Suspense fallback={<JobDetailSuspenseFallback />}>
+      <JobDetailContent />
+    </Suspense>
+  );
+}
+
+function JobDetailContent() {
   const router = useRouter();
   const params = useSearchParams();
   const id = params.get('id') || '';
@@ -538,6 +546,23 @@ export default function JobDetailPage() {
         </div>
       </main>
 
+      <Footer />
+    </div>
+  );
+}
+
+function JobDetailSuspenseFallback() {
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Navigation />
+      <main className="flex-1">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Loading job details...
+          </div>
+        </div>
+      </main>
       <Footer />
     </div>
   );
