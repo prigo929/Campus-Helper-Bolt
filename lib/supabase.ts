@@ -62,6 +62,23 @@ export type ForumPost = {
   updated_at: string;
 };
 
+export type Conversation = {
+  id: string;
+  started_by: string | null;
+  job_id?: string | null;
+  marketplace_item_id?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Message = {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  body: string;
+  created_at: string;
+};
+
 export type Rating = {
   id: string;
   rated_user_id: string;

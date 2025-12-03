@@ -53,6 +53,8 @@ export default function JobDetailPage() {
   const [newRating, setNewRating] = useState('5');
   const [newComment, setNewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [contactLoading, setContactLoading] = useState(false);
+  const [contactError, setContactError] = useState('');
   const [submitError, setSubmitError] = useState('');
   const [submitMessage, setSubmitMessage] = useState('');
   const [reportOpen, setReportOpen] = useState(false);
@@ -161,6 +163,88 @@ export default function JobDetailPage() {
 
   const status = (job?.status || 'open').replace('_', ' ');
 
+  const handleContact = async () => {
+    setContactError('');
+    if (!supabase) {
+      setContactError('Supabase is not configured.');
+      return;
+    }
+    if (!posterId || !job?.id) {
+      setContactError('Poster unavailable.');
+      return;
+    }
+    setContactLoading(true);
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData.session?.user?.id;
+    if (!userId) {
+      router.push('/sign-in');
+      setContactLoading(false);
+      return;
+    }
+
+    // find existing conversation where both users participate
+    const { data: myConversations, error: myConvError } = await supabase
+      .from('conversation_participants')
+      .select('conversation_id')
+      .eq('user_id', userId);
+
+    if (myConvError) {
+      setContactError(myConvError.message);
+      setContactLoading(false);
+      return;
+    }
+
+    const myIds = (myConversations || []).map((c) => c.conversation_id);
+    let conversationId: string | null = null;
+
+    if (myIds.length > 0) {
+      const { data: shared, error: sharedError } = await supabase
+        .from('conversation_participants')
+        .select('conversation_id')
+        .in('conversation_id', myIds)
+        .eq('user_id', posterId);
+
+      if (sharedError) {
+        setContactError(sharedError.message);
+        setContactLoading(false);
+        return;
+      }
+
+      conversationId = shared?.[0]?.conversation_id || null;
+    }
+
+    if (!conversationId) {
+      const { data: newConv, error: convError } = await supabase
+        .from('conversations')
+        .insert({
+          started_by: userId,
+          job_id: job.id,
+        })
+        .select('id')
+        .single();
+
+      if (convError || !newConv?.id) {
+        setContactError(convError?.message || 'Could not start conversation.');
+        setContactLoading(false);
+        return;
+      }
+      conversationId = newConv.id;
+
+      const { error: addError } = await supabase.from('conversation_participants').insert([
+        { conversation_id: conversationId, user_id: userId },
+        { conversation_id: conversationId, user_id: posterId },
+      ]);
+      if (addError) {
+        setContactError(addError.message);
+        setContactLoading(false);
+        return;
+      }
+    }
+
+    setContactLoading(false);
+    router.push(`/messages/${conversationId}`);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navigation />
@@ -191,12 +275,16 @@ export default function JobDetailPage() {
                     )}
                   </p>
                   {posterEmail && (
-                    <div className="mt-2">
-                      <Link href={`mailto:${posterEmail}?subject=${encodeURIComponent(`Job: ${job?.title || ''}`)}`}>
-                        <Button size="sm" className="bg-[#1e3a5f] text-white hover:bg-[#2a4a6f]">
-                          Contact poster
-                        </Button>
-                      </Link>
+                    <div className="mt-2 space-y-2">
+                      <Button
+                        size="sm"
+                        className="bg-[#1e3a5f] text-white hover:bg-[#2a4a6f]"
+                        onClick={handleContact}
+                        disabled={contactLoading}
+                      >
+                        {contactLoading ? 'Starting chat...' : 'Contact poster'}
+                      </Button>
+                      {contactError && <p className="text-xs text-red-600">{contactError}</p>}
                     </div>
                   )}
                 </div>
