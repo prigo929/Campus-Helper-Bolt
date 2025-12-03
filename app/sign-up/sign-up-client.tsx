@@ -3,7 +3,7 @@
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Sparkles, Shield, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Shield, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -19,6 +19,7 @@ export default function SignUpClient() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [university, setUniversity] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -190,16 +191,26 @@ export default function SignUpClient() {
 
                       <div className="space-y-2">
                         <Label htmlFor="password">Password</Label>
-                        <Input
-                          id="password"
-                          type="password"
-                          placeholder="********"
-                          className="h-11"
-                          value={password}
-                          autoComplete="new-password"
-                          onChange={(event) => setPassword(event.target.value)}
-                          disabled={isSubmitting}
-                        />
+                        <div className="relative">
+                          <Input
+                            id="password"
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="********"
+                            className="h-11 pr-12"
+                            value={password}
+                            autoComplete="new-password"
+                            onChange={(event) => setPassword(event.target.value)}
+                            disabled={isSubmitting}
+                          />
+                          <button
+                            type="button"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center text-sm text-gray-500 hover:text-[#1e3a5f]"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                            aria-label={showPassword ? 'Hide password' : 'Show password'}
+                          >
+                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
                       </div>
 
                       <Button

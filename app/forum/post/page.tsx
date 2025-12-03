@@ -52,6 +52,7 @@ export default function ForumDetailPage() {
   const [reportDetails, setReportDetails] = useState('');
   const [reportMessage, setReportMessage] = useState('');
   const [commentReportMessage, setCommentReportMessage] = useState('');
+  const [views, setViews] = useState<number | null>(null);
   const handleReportSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!post?.id) return;
@@ -90,6 +91,10 @@ export default function ForumDetailPage() {
         const profile = (data as any).profiles;
         setAuthor(profile?.full_name || profile?.email || 'Campus Helper user');
         setAuthorId(data.user_id || null);
+        const currentViews = data.views ?? 0;
+        setViews(currentViews);
+        await supabase.from('forum_posts').update({ views: currentViews + 1 }).eq('id', id);
+        setViews(currentViews + 1);
       }
 
       setLoading(false);
@@ -287,7 +292,7 @@ export default function ForumDetailPage() {
               <div className="flex items-center gap-4 text-sm text-gray-700">
                 <div className="flex items-center">
                   <Eye className="w-4 h-4 mr-1 text-[#d4af37]" />
-                  {post?.views ?? 0} views
+                  {views ?? post?.views ?? 0} views
                 </div>
                 <div className="flex items-center">
                   <MessageSquare className="w-4 h-4 mr-1 text-[#d4af37]" />

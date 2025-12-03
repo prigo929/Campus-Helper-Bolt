@@ -22,6 +22,7 @@ type DisplayPost = ForumPost & {
   comments?: number;
   posted?: string;
   trending?: boolean;
+  comments_count?: number;
 };
 
 const samplePosts: DisplayPost[] = [
@@ -126,18 +127,20 @@ export default function ForumPage() {
 
       const { data, error } = await supabase
         .from('forum_posts')
-        .select('id, user_id, title, content, category, views, created_at, updated_at, profiles(full_name,email)')
+        .select('id, user_id, title, content, category, views, created_at, updated_at, profiles(full_name,email), forum_comments(count)')
         .order('created_at', { ascending: false })
         .limit(50);
 
       if (!error && data) {
         const mapped: DisplayPost[] = data.map((post) => {
           const profile = (post as any).profiles;
+          const commentsCount = (post as any).forum_comments?.[0]?.count ?? 0;
           return {
             ...post,
             posted: post.created_at,
             trending: post.views ? post.views > 100 : false,
-            comments: 0,
+            comments: commentsCount,
+            comments_count: commentsCount,
             user_name: profile?.full_name || profile?.email || 'Campus Helper user',
           };
         });
@@ -292,7 +295,7 @@ export default function ForumPage() {
                           </div>
                           <div className="flex items-center">
                             <MessageSquare className="w-4 h-4 mr-1 text-[#d4af37]" />
-                            <span>{post.comments ?? 0} comments</span>
+                            <span>{post.comments_count ?? post.comments ?? 0} comments</span>
                           </div>
                           <span className="ml-auto text-[#1e3a5f] group-hover:text-[#d4af37]">View Discussion →</span>
                         </div>

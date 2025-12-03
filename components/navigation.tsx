@@ -84,33 +84,14 @@ export function Navigation() {
 
   return (
     <nav className="bg-[#1e3a5f] text-white shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-[#d4af37] to-[#f4d03f] rounded-lg flex items-center justify-center font-bold text-[#1e3a5f]">
-              CH
-            </div>
-            <span className="text-xl font-bold">Campus Helper</span>
-          </Link>
-
-          <div className="hidden md:flex items-center space-x-1">
-            <Link href="/jobs">
-              <Button variant="ghost" className="text-white hover:text-[#d4af37] hover:bg-[#2a4a6f]">
-                <Briefcase className="w-4 h-4 mr-2" />
-                Jobs
-              </Button>
-            </Link>
-            <Link href="/marketplace">
-              <Button variant="ghost" className="text-white hover:text-[#d4af37] hover:bg-[#2a4a6f]">
-                <ShoppingBag className="w-4 h-4 mr-2" />
-                Marketplace
-              </Button>
-            </Link>
-            <Link href="/forum">
-              <Button variant="ghost" className="text-white hover:text-[#d4af37] hover:bg-[#2a4a6f]">
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Forum
-              </Button>
+          <div className="flex items-center space-x-2">
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-[#d4af37] to-[#f4d03f] rounded-lg flex items-center justify-center font-bold text-[#1e3a5f]">
+                CH
+              </div>
+              <span className="text-xl font-bold">Campus Helper</span>
             </Link>
           </div>
 
@@ -119,7 +100,10 @@ export function Navigation() {
               <>
                 {isAdmin && (
                   <Link href="/admin/reports">
-                    <Button variant="outline" className="border-white/60 text-white hover:bg-white hover:text-[#1e3a5f]">
+                    <Button
+                      variant="default"
+                      className="bg-white text-[#1e3a5f] hover:bg-[#d4af37] hover:text-[#1e3a5f] font-semibold border border-[#d4af37]"
+                    >
                       <Shield className="w-4 h-4 mr-2" />
                       Admin
                     </Button>
@@ -159,6 +143,26 @@ export function Navigation() {
                 </Link>
               </>
             )}
+          </div>
+          <div className="hidden md:flex items-center space-x-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <Link href="/jobs">
+              <Button variant="ghost" className="text-white hover:text-[#d4af37] hover:bg-[#2a4a6f]">
+                <Briefcase className="w-4 h-4 mr-2" />
+                Jobs
+              </Button>
+            </Link>
+            <Link href="/marketplace">
+              <Button variant="ghost" className="text-white hover:text-[#d4af37] hover:bg-[#2a4a6f]">
+                <ShoppingBag className="w-4 h-4 mr-2" />
+                Marketplace
+              </Button>
+            </Link>
+            <Link href="/forum">
+              <Button variant="ghost" className="text-white hover:text-[#d4af37] hover:bg-[#2a4a6f]">
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Forum
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
