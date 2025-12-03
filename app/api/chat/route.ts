@@ -1,5 +1,5 @@
 import { openai } from '@ai-sdk/openai';
-import { streamText, type CoreMessage } from 'ai';
+import { streamText, convertToModelMessages } from 'ai';
 import { createGateway } from '@ai-sdk/gateway';
 
 export const runtime = 'edge';
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     });
   }
 
-  const { messages }: { messages?: CoreMessage[] } = await req.json();
+  const { messages }: { messages?: Array<{ id?: string }> } = await req.json();
 
   if (!messages?.length) {
     return new Response(JSON.stringify({ error: 'No messages provided' }), {
@@ -26,13 +26,16 @@ export async function POST(req: Request) {
     });
   }
 
+  const uiMessages = messages.map(({ id: _id, ...rest }) => rest) as Parameters<typeof convertToModelMessages>[0];
+  const modelMessages = convertToModelMessages(uiMessages);
+
   const model = gateway ? gateway('openai/gpt-4o-mini') : openai('gpt-4o-mini');
 
   const result = await streamText({
     model,
     system:
       'You are Campus Helper AI, a concise assistant for students. Keep answers short, helpful, and focused on jobs, marketplace, forum, and campus life. If asked about account data, remind them you cannot see their private information.',
-    messages,
+    messages: modelMessages,
     temperature: 0.6,
   });
 
