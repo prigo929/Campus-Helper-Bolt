@@ -182,8 +182,12 @@ export default async function Home() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: '0.16s' }}>
                 <Link href="/sign-up">
-                  <Button size="lg" className="group relative overflow-hidden bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e] font-semibold text-lg px-8 shadow-[0_15px_40px_rgba(212,175,55,0.35)] transition-transform duration-300 hover:-translate-y-0.5">
+                  <Button
+                    size="lg"
+                    className="group relative overflow-hidden bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e] font-semibold text-lg px-8 shadow-[0_15px_40px_rgba(212,175,55,0.35)] transition-transform duration-300 hover:-translate-y-0.5"
+                  >
                     <span className="pointer-events-none absolute inset-0 bg-white/30 opacity-0 group-hover:opacity-20 transition-opacity" />
+                    <span className="pointer-events-none absolute inset-0 translate-x-[-150%] bg-gradient-to-r from-transparent via-white/50 to-transparent opacity-60 group-hover:opacity-90 animate-[shimmer_4s_ease-in-out_infinite]" />
                     Get Started
                   </Button>
                 </Link>
