@@ -94,7 +94,7 @@ export function Navigation() {
     setEmail('');
     setIsAdmin(false);
     setLoading(false);
-    router.refresh();
+    router.push('/');
   };
 
   return (
