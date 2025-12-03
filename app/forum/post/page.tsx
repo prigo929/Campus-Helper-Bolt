@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, MessageSquare, Eye, Loader2, AlertCircle, Flag } from 'lucide-react';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
@@ -53,6 +53,7 @@ export default function ForumDetailPage() {
   const [reportMessage, setReportMessage] = useState('');
   const [commentReportMessage, setCommentReportMessage] = useState('');
   const [views, setViews] = useState<number | null>(null);
+  const hasIncremented = useRef(false);
   const handleReportSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!post?.id) return;
@@ -93,8 +94,15 @@ export default function ForumDetailPage() {
         setAuthorId(data.user_id || null);
         const currentViews = data.views ?? 0;
         setViews(currentViews);
-        await supabase.from('forum_posts').update({ views: currentViews + 1 }).eq('id', id);
-        setViews(currentViews + 1);
+        if (!hasIncremented.current) {
+          const { error: rpcError } = await supabase.rpc('increment_forum_post_views', { post_id: id });
+          if (!rpcError) {
+            setViews(currentViews + 1);
+            hasIncremented.current = true;
+          } else {
+            console.error('Increment views failed', rpcError);
+          }
+        }
       }
 
       setLoading(false);

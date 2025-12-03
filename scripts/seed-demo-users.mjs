@@ -252,10 +252,13 @@ const posts = [
     content: 'Need a quiet cafe for econ problem sets. Suggestions?',
     category: 'general',
     user_email: 'ethan@harvard.test',
+    lockViews: true,
+    views: 130,
   },
 ];
 
 const userIdByEmail = new Map();
+const randomViews = (min = 50, max = 250) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 for (const demo of demos) {
   const { data: user, error: createErr } = await supabase.auth.admin.createUser({
@@ -344,8 +347,12 @@ const resolvedPosts = posts
       console.warn(`Skipping post for ${post.user_email}: no user id`);
       return null;
     }
-    const { user_email, ...rest } = post;
-    return { ...rest, user_id: id };
+    const { user_email, lockViews, views, ...rest } = post;
+    return {
+      ...rest,
+      user_id: id,
+      views: lockViews ? views ?? 0 : randomViews(),
+    };
   })
   .filter(Boolean);
 
@@ -353,6 +360,20 @@ if (resolvedPosts.length) {
   const { error } = await supabase.from('forum_posts').insert(resolvedPosts);
   if (error) console.error('Forum seed error:', error.message);
   else console.log(`Seeded ${resolvedPosts.length} forum posts`);
+}
+
+// Randomize views for all existing forum posts (past ones too)
+const { data: existingPosts, error: listPostsError } = await supabase
+  .from('forum_posts')
+  .select('id');
+
+if (listPostsError) {
+  console.error('Failed to list forum posts for view update:', listPostsError.message);
+} else if (existingPosts?.length) {
+  for (const p of existingPosts) {
+    await supabase.from('forum_posts').update({ views: randomViews() }).eq('id', p.id);
+  }
+  console.log(`Updated views for ${existingPosts.length} forum posts`);
 }
 
 console.log('Done.');
