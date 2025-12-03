@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
+import { HomeFinalCta, HomeHeroActions } from '@/components/home-auth-cta';
 
 type SupabaseHighlights = {
   jobs: Job[];
@@ -180,26 +181,8 @@ export default async function Home() {
               <p className="text-xl text-gray-200 mb-8 animate-fade-in-up" style={{ animationDelay: '0.08s' }}>
                 Find jobs, buy and sell materials, and connect with your university community all in one place.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: '0.16s' }}>
-                <Link href="/sign-up">
-                  <Button
-                    size="lg"
-                    className="group relative overflow-hidden bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e] font-semibold text-lg px-8 shadow-[0_15px_40px_rgba(212,175,55,0.35)] transition-transform duration-300 hover:-translate-y-0.5"
-                  >
-                    <span className="pointer-events-none absolute inset-0 bg-white/30 opacity-0 group-hover:opacity-20 transition-opacity" />
-                    <span className="pointer-events-none absolute inset-0 translate-x-[-150%] bg-gradient-to-r from-transparent via-white/50 to-transparent opacity-60 group-hover:opacity-90 animate-[shimmer_4s_ease-in-out_infinite]" />
-                    Get Started
-                  </Button>
-                </Link>
-                <Link href="/support">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="relative overflow-hidden border-2 border-white/80 text-white hover:bg-white hover:text-[#1e3a5f] font-semibold text-lg px-8 backdrop-blur bg-white/10 transition-transform duration-300 hover:-translate-y-0.5"
-                  >
-                    Learn More
-                  </Button>
-                </Link>
+              <div className="animate-fade-in-up" style={{ animationDelay: '0.16s' }}>
+                <HomeHeroActions />
               </div>
             </div>
           </div>
@@ -413,22 +396,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="py-16">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#1e3a5f] mb-6">
-              Ready to Get Started?
-            </h2>
-            <p className="text-lg text-gray-600 mb-8">
-              Join your campus community today and discover opportunities.
-            </p>
-            <Link href="/sign-up">
-              <Button size="lg" className="group relative overflow-hidden bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e] font-semibold text-lg px-10 shadow-[0_15px_40px_rgba(212,175,55,0.35)]">
-                <span className="pointer-events-none absolute inset-0 bg-white/30 opacity-0 group-hover:opacity-20 transition-opacity" />
-                Create Your Account
-              </Button>
-            </Link>
-          </div>
-        </section>
+        <HomeFinalCta />
       </main>
 
       <Footer />
