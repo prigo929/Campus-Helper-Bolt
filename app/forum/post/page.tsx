@@ -53,6 +53,7 @@ export default function ForumDetailPage() {
   const [reportMessage, setReportMessage] = useState('');
   const [commentReportMessage, setCommentReportMessage] = useState('');
   const [views, setViews] = useState<number | null>(null);
+  const [hasSession, setHasSession] = useState(false);
   const hasIncremented = useRef(false);
   const handleReportSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -77,6 +78,15 @@ export default function ForumDetailPage() {
       }
 
       setLoading(true);
+      const { data: sessionData } = await supabase.auth.getSession();
+      const session = sessionData.session;
+      setHasSession(Boolean(session));
+      if (!session) {
+        setPost(fallbackPost);
+        setComments([]);
+        setLoading(false);
+        return;
+      }
 
       const { data, error: fetchError } = await supabase
         .from('forum_posts')
@@ -113,7 +123,7 @@ export default function ForumDetailPage() {
 
   useEffect(() => {
     const loadComments = async () => {
-      if (!supabase || !post?.id) return;
+      if (!supabase || !post?.id || !hasSession) return;
       const { data, error: commentsError } = await supabase
         .from('forum_comments')
         .select('id, content, created_at, user_id, profiles(full_name,email)')
@@ -134,7 +144,7 @@ export default function ForumDetailPage() {
       setComments(mapped);
     };
     loadComments();
-  }, [post?.id]);
+  }, [post?.id, hasSession]);
 
   const formatDate = (value?: string | null) =>
     value ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
