@@ -7,6 +7,7 @@ import { Briefcase, ShoppingBag, MessageSquare, User, LogOut, Loader2, Shield, S
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabase';
+import { NotificationsDropdown } from '@/components/notifications-dropdown';
 
 export function Navigation() {
   const router = useRouter();
@@ -98,6 +99,7 @@ export function Navigation() {
           <div className="flex items-center space-x-2">
             {isAuthed ? (
               <>
+                <NotificationsDropdown />
                 <Link href="/messages" aria-label="Messages">
                   <Button variant="ghost" className="text-white hover:text-[#d4af37] hover:bg-[#2a4a6f] p-2">
                     <MessageSquare className="w-5 h-5" />
