@@ -79,9 +79,10 @@ const config: Config = {
           },
         },
         'gradient-move': {
-          '0%': { backgroundPosition: '0% 50%' },
-          '50%': { backgroundPosition: '100% 50%' },
-          '100%': { backgroundPosition: '0% 50%' },
+          '0%': { backgroundPosition: '0% 0%', filter: 'hue-rotate(0deg) saturate(1)' },
+          '33%': { backgroundPosition: '100% 40%', filter: 'hue-rotate(8deg) saturate(1.08)' },
+          '66%': { backgroundPosition: '40% 100%', filter: 'hue-rotate(18deg) saturate(1.04)' },
+          '100%': { backgroundPosition: '0% 0%', filter: 'hue-rotate(0deg) saturate(1)' },
         },
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },
@@ -95,7 +96,7 @@ const config: Config = {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'gradient-move': 'gradient-move 14s ease infinite',
+        'gradient-move': 'gradient-move 20s ease-in-out infinite alternate',
         float: 'float 10s ease-in-out infinite',
         'fade-in-up': 'fade-in-up 0.8s ease forwards',
       },
