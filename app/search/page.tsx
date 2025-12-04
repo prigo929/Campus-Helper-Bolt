@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Search, Briefcase, ShoppingBag, MessageSquare, AlertCircle, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Search, Briefcase, ShoppingBag, MessageSquare, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -40,11 +41,20 @@ function highlight(text: string, query: string) {
 }
 
 export default function SearchPage() {
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResults>(EMPTY_RESULTS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [authToken, setAuthToken] = useState<string | null>(null);
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/');
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -114,9 +124,20 @@ export default function SearchPage() {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-indigo-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
         <header className="space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 text-purple-700 px-3 py-1 text-sm font-semibold">
-            <Search className="w-4 h-4" />
-            Global Search
+          <div className="flex items-center gap-3 flex-wrap">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-[#1e3a5f] hover:text-[#d4af37]"
+              onClick={handleBack}
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back
+            </Button>
+            <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 text-purple-700 px-3 py-1 text-sm font-semibold">
+              <Search className="w-4 h-4" />
+              Global Search
+            </div>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-[#1e3a5f]">Find anything on Campus Helper</h1>
           <p className="text-lg text-gray-600">
