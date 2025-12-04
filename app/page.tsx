@@ -274,12 +274,15 @@ export default async function Home() {
                     </div>
                     <div className="space-y-4">
                       {posts.map((post) => (
-                        <div key={post.id} className="border border-gray-100 rounded-lg p-3 bg-gray-50/70">
+                        <div
+                          key={post.id}
+                          className="border border-gray-100 rounded-lg p-3 bg-gray-50/70 max-h-32 overflow-hidden"
+                        >
                           <div className="flex items-start justify-between gap-2">
                             <p className="font-semibold text-[#1e3a5f]">{post.title}</p>
                             <span className="text-xs font-semibold text-[#d4af37] uppercase">{post.category}</span>
                           </div>
-                          <p className="text-sm text-gray-600 mt-2 max-h-12 overflow-hidden text-ellipsis">{post.content}</p>
+                          <p className="text-sm text-gray-600 mt-2 line-clamp-2">{post.content}</p>
                           <p className="text-xs text-gray-500 mt-2">{post.views ?? 0} views</p>
                         </div>
                       ))}

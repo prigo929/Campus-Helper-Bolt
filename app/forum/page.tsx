@@ -278,14 +278,14 @@ export default function ForumPage() {
                 {filteredPosts.map((post, index) => (
                   <Link href={`/forum/post?id=${post.id}`} key={post.id}>
                     <Card
-                      className="hover:shadow-lg transition-all border-2 hover:border-[#d4af37] bg-white/90 backdrop-blur animate-fade-in-up"
+                      className="hover:shadow-lg transition-all border-2 hover:border-[#d4af37] bg-white/90 backdrop-blur animate-fade-in-up h-full overflow-hidden"
                       style={{ animationDelay: `${index * 0.05}s` }}
                     >
                       <CardHeader className="pb-3">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
-                              <h3 className="text-lg font-bold text-[#1e3a5f]">{post.title}</h3>
+                              <h3 className="text-lg font-bold text-[#1e3a5f] line-clamp-2">{post.title}</h3>
                               {post.trending && (
                                 <Badge className="bg-[#d4af37] text-[#1e3a5f]">
                                   <TrendingUp className="w-3 h-3 mr-1" />
@@ -306,8 +306,8 @@ export default function ForumPage() {
                         </div>
                       </CardHeader>
 
-                      <CardContent>
-                        <p className="text-gray-700 mb-4">{post.content}</p>
+                      <CardContent className="space-y-3 pb-5 max-h-40 overflow-hidden">
+                        <p className="text-gray-700 line-clamp-3">{post.content}</p>
 
                         <div className="flex items-center gap-6 text-sm text-gray-600">
                           <div className="flex items-center">
