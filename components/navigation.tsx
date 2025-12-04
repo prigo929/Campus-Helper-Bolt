@@ -100,8 +100,8 @@ export function Navigation() {
   return (
     <nav className="bg-[#1e3a5f] text-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="flex items-center h-16 gap-2">
-          <div className="flex items-center space-x-2 flex-1 min-w-[240px]">
+        <div className="flex flex-wrap items-center gap-2 py-3">
+          <div className="flex items-center space-x-2 w-full sm:w-auto sm:flex-1 sm:min-w-0 lg:flex-1 lg:min-w-0">
             <Link href="/" className="flex items-center space-x-2">
               <div className="w-8 h-8 min-w-[2rem] min-h-[2rem] shrink-0 bg-gradient-to-br from-[#d4af37] to-[#f4d03f] rounded-lg flex items-center justify-center font-bold text-[#1e3a5f]">
                 CH
@@ -161,7 +161,7 @@ export function Navigation() {
             </Link>
           </div>
 
-          <div className="flex items-center gap-2 justify-end flex-1 min-w-[240px]">
+          <div className="flex items-center gap-2 justify-end w-full sm:w-auto sm:flex-1 sm:min-w-0 lg:flex-1 lg:min-w-0">
             {isAuthed ? (
               <>
                 <NotificationsDropdown />
