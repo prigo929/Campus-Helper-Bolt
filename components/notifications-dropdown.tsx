@@ -36,10 +36,11 @@ export function NotificationsDropdown() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="relative text-white hover:text-[#d4af37] hover:bg-[#2a4a6f] p-2 h-10 w-10"
+          className="relative text-white hover:text-[#d4af37] hover:bg-[#2a4a6f] h-10 px-3 flex items-center gap-2"
           aria-label="Notifications"
         >
           <Bell className="w-5 h-5" />
+          <span className="hidden sm:inline text-sm font-medium">Notifications</span>
           {unreadCount > 0 && (
             <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#d4af37] ring-2 ring-white" />
           )}
