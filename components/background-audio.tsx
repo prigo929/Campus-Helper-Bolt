@@ -10,7 +10,7 @@ export function BackgroundAudio() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<any>(null);
   const [ready, setReady] = useState(false);
-  const [muted, setMuted] = useState(true);
+  const [muted, setMuted] = useState(false);
   const [playing, setPlaying] = useState(true);
 
   useEffect(() => {
@@ -34,16 +34,17 @@ export function BackgroundAudio() {
           modestbranding: 1,
           playsinline: 1,
           rel: 0,
-          mute: 1,
+          mute: 0,
         },
         events: {
           onReady: (event: any) => {
             if (!isMounted) return;
             event.target.setVolume?.(65);
             event.target.setPlaybackRate?.(1);
-            event.target.mute();
+            event.target.unMute?.();
             setReady(true);
             setPlaying(true);
+            setMuted(false);
           },
           onStateChange: (event: any) => {
             if (!isMounted) return;

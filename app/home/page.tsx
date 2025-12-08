@@ -246,7 +246,7 @@ export default async function Home() {
               </div>
               <div className="flex flex-wrap justify-center md:justify-end gap-3 w-full md:w-auto">
                 <Link href="/jobs">
-                  <Button variant="outline" className="border-[#caa35d] text-[#f1df9c] hover:bg-[#caa35d] hover:text-[#0f1c16]">
+                  <Button className="bg-[#caa35d] text-[#0f1c16] hover:bg-[#a57c2c]">
                     View missions
                   </Button>
                 </Link>
@@ -353,23 +353,25 @@ export default async function Home() {
             <div className="grid md:grid-cols-3 gap-8">
               <Card className="group relative overflow-hidden border border-[#caa35d]/30 hover:border-[#caa35d] transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,0,0,0.35)] bg-white/5 backdrop-blur-sm transform hover:-translate-y-1">
                 <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-[#caa35d]/15 via-white/20 to-[#0f1c16]/10" />
-                <CardContent className="relative p-6">
+                <CardContent className="relative p-6 flex flex-col h-full">
                   <div className="w-12 h-12 bg-[#caa35d] rounded-lg flex items-center justify-center mb-4">
                     <Briefcase className="w-6 h-6 text-[#0f1c16]" />
                   </div>
                   <h3 className="text-xl font-bold text-[#f1df9c] mb-3">Mission roster</h3>
-                  <p className="text-[#d9c8a5]/85 mb-4">
+                  <p className="text-[#f1df9c] mb-4">
                     Spin up gigs fast, track who is on point, and keep incentives clear for every rotation.
                   </p>
-                  <Link href="/jobs" className="text-[#caa35d] font-semibold hover:underline">
-                    View missions →
-                  </Link>
+                  <div className="flex justify-end mt-auto pt-2">
+                    <Link href="/jobs" className="text-[#caa35d] font-semibold hover:text-white hover:underline">
+                      View missions →
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
 
               <Card className="group relative overflow-hidden border border-[#caa35d]/30 hover:border-[#caa35d] transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,0,0,0.35)] bg-white/5 backdrop-blur-sm transform hover:-translate-y-1">
                 <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-[#caa35d]/15 via-white/20 to-[#0f1c16]/10" />
-                <CardContent className="relative p-6">
+                <CardContent className="relative p-6 flex flex-col h-full">
                   <div className="w-12 h-12 bg-[#caa35d] rounded-lg flex items-center justify-center mb-4">
                     <ShoppingBag className="w-6 h-6 text-[#0f1c16]" />
                   </div>
@@ -377,15 +379,17 @@ export default async function Home() {
                   <p className="text-[#d9c8a5]/85 mb-4">
                     Move kit, radios, and desert-ready gear with trusted peers. Barter, buy, or swap in minutes.
                   </p>
-                  <Link href="/marketplace" className="text-[#caa35d] font-semibold hover:underline">
-                    Open supply →
-                  </Link>
+                  <div className="flex justify-end mt-auto pt-2">
+                    <Link href="/marketplace" className="text-[#caa35d] font-semibold hover:underline">
+                      Open supply →
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
 
               <Card className="group relative overflow-hidden border border-[#caa35d]/30 hover:border-[#caa35d] transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,0,0,0.35)] bg-white/5 backdrop-blur-sm transform hover:-translate-y-1">
                 <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-[#caa35d]/15 via-white/20 to-[#0f1c16]/10" />
-                <CardContent className="relative p-6">
+                <CardContent className="relative p-6 flex flex-col h-full">
                   <div className="w-12 h-12 bg-[#caa35d] rounded-lg flex items-center justify-center mb-4">
                     <MessageSquare className="w-6 h-6 text-[#0f1c16]" />
                   </div>
@@ -393,9 +397,11 @@ export default async function Home() {
                   <p className="text-[#d9c8a5]/85 mb-4">
                     Drop quick intel, SOPs, or morale boosts. Keep everyone synced without drowning in noise.
                   </p>
-                  <Link href="/forum" className="text-[#caa35d] font-semibold hover:underline">
-                    Enter briefings →
-                  </Link>
+                  <div className="flex justify-end mt-auto pt-2">
+                    <Link href="/forum" className="text-[#caa35d] font-semibold hover:underline">
+                      Enter briefings →
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
             </div>
