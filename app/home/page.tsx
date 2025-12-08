@@ -16,12 +16,12 @@ type SupabaseHighlights = {
 };
 
 const HERO_IMAGES = [
-  { src: '/oil-desert-storm-tanks.jpg', alt: 'Column of tanks rolling through oil fires during Desert Storm', badge: 'Armor push' },
-  { src: '/desert-ops-tank.jpg', alt: 'Desert operation tank profile with crew ready', badge: 'OPS ready' },
-  { src: '/desert-storm-space.jpg', alt: 'Satellite view of Desert Storm theater at night', badge: 'Overwatch' },
-  { src: '/desert-storm-collage-1.svg', alt: 'Operation Desert Storm propaganda collage poster', badge: 'Desert Storm' },
-  { src: '/desert-storm-collage-2.svg', alt: 'Hold the line Desert Storm morale art', badge: 'Hold the line' },
-  { src: '/usa-flag.svg', alt: 'USA flag patch', badge: 'USA' },
+  { src: '/oil-desert-storm-tanks.jpg', alt: 'Column of tanks rolling through oil fires during Desert Storm', badge: 'Armor push', position: 'center center' },
+  { src: '/desert-ops-tank.jpg', alt: 'Desert operation tank profile with crew ready', badge: 'OPS ready', position: 'center 45%' },
+  { src: '/desert-storm-space.jpg', alt: 'Satellite view of Desert Storm theater at night', badge: 'Overwatch', position: 'center center' },
+  { src: '/desert-storm-collage-1.svg', alt: 'Operation Desert Storm propaganda collage poster', badge: 'Desert Storm', position: 'center center' },
+  { src: '/desert-storm-collage-2.svg', alt: 'Hold the line Desert Storm morale art', badge: 'Hold the line', position: 'center center' },
+  { src: '/usa-flag.svg', alt: 'USA flag patch', badge: 'USA', position: 'center center' },
 ];
 
 const FALLBACK_DATA: SupabaseHighlights = {
@@ -97,7 +97,7 @@ const FALLBACK_DATA: SupabaseHighlights = {
       user_id: 'demo',
       title: 'Looking for spare chem lights and IR strobes',
       content: 'We burned through ours last rotation. Happy to barter MRE coffee and 9-line cards.',
-      category: 'supply',
+      category: 'other',
       views: 122,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
