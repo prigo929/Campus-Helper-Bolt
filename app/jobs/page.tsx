@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { Search, MapPin, DollarSign, Clock, Plus, Loader2 } from 'lucide-react';
+import { Search, MapPin, Clock, Plus, Loader2 } from 'lucide-react';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase, type Job } from '@/lib/supabase';
 import { getSafeSession } from '@/lib/get-safe-session';
 
-const categories = ['All', 'Tutoring', 'Research', 'Campus Tasks', 'Events', 'Tech', 'Other'];
+const categories = ['All', 'Logistics', 'Intel', 'Support', 'Aviation', 'Other'];
 
 type DisplayJob = Job & {
   user_name?: string;
@@ -28,68 +28,74 @@ const sampleJobs: DisplayJob[] = [
   {
     id: '1',
     user_id: 'demo',
-    title: 'Math Tutor Needed',
-    description: 'Looking for a patient math tutor for Calculus II. 2-3 sessions per week.',
-    category: 'Tutoring',
-    pay_rate: 25,
+    title: 'Convoy Security Team Lead',
+    description: 'Coordinate two-vehicle escort, brief drivers, and oversee route checks before dusk.',
+    category: 'Logistics',
+    pay_rate: 260,
     pay_type: 'hourly',
-    location: 'Library or Online',
+    location: 'FOB Patriot',
     status: 'open',
     created_at: sampleTimestamp,
     updated_at: sampleTimestamp,
-    user_name: 'Sarah Chen',
+    user_name: 'Sgt. Lawson',
     user_rating: 4.8,
     posted: '2 days ago',
   },
   {
     id: '2',
     user_id: 'demo',
-    title: 'Research Assistant - Psychology Lab',
-    description: 'Help with data collection and analysis for cognitive psychology study. 10 hours/week.',
-    category: 'Research',
-    pay_rate: 18,
+    title: 'Intel Synthesis Analyst',
+    description: 'Summarize SIGINT + HUMINT into a nightly brief for the ops desk; push a 2-pager before 2300.',
+    category: 'Intel',
+    pay_rate: 320,
     pay_type: 'hourly',
-    location: 'Psychology Building',
+    location: 'Remote/TOC',
     status: 'open',
     created_at: sampleTimestamp,
     updated_at: sampleTimestamp,
-    user_name: 'Dr. Martinez',
+    user_name: 'Lt. Rivera',
     user_rating: 5.0,
     posted: '1 week ago',
   },
   {
     id: '3',
     user_id: 'demo',
-    title: 'Event Setup Help',
-    description: 'Need 3 people to help set up tables and chairs for campus event. Quick 2-hour job.',
-    category: 'Events',
-    pay_rate: 100,
-    pay_type: 'fixed',
-    location: 'Student Union',
+    title: 'Air corridor deconfliction',
+    description: 'Coordinate flight windows for CASEVAC and resupply; publish NO-FLY grid updates by 1800.',
+    category: 'Aviation',
+    pay_rate: 280,
+    pay_type: 'hourly',
+    location: 'Flight Ops',
     status: 'open',
     created_at: sampleTimestamp,
     updated_at: sampleTimestamp,
-    user_name: 'Campus Events',
-    user_rating: 4.6,
+    user_name: 'CWO Hart',
+    user_rating: 4.9,
     posted: '3 days ago',
   },
   {
     id: '4',
     user_id: 'demo',
-    title: 'Web Development Project',
-    description: 'Build a simple portfolio website. Experience with React preferred.',
-    category: 'Tech',
-    pay_rate: 500,
-    pay_type: 'fixed',
-    location: 'Remote',
+    title: 'FOB Supply Control',
+    description: 'Receive pallets, stage class IV/V, and reconcile hand receipts for platoon leaders.',
+    category: 'Support',
+    pay_rate: 240,
+    pay_type: 'hourly',
+    location: 'Supply Yard',
     status: 'open',
     created_at: sampleTimestamp,
     updated_at: sampleTimestamp,
-    user_name: 'Michael Brown',
-    user_rating: 4.9,
+    user_name: 'SSG Parker',
+    user_rating: 4.7,
     posted: '5 days ago',
   },
 ];
+
+const currency = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  maximumFractionDigits: 0,
+});
 
 export default function JobsPage() {
   const router = useRouter();
@@ -120,22 +126,16 @@ export default function JobsPage() {
 
       const { data, error } = await supabase
         .from('jobs')
-        .select('id, user_id, title, description, category, pay_rate, pay_type, location, status, created_at, updated_at, profiles(full_name,email)')
+        .select('id, user_id, title, description, category, pay_rate, pay_type, location, status, created_at, updated_at')
+        .eq('status', 'open')
         .order('created_at', { ascending: false })
-        .limit(50);
+        .limit(20);
 
-      if (!error && data) {
-        const mapped: DisplayJob[] = data.map((job) => {
-          const profile = (job as any).profiles;
-          return {
-            ...job,
-            posted: job.created_at,
-            user_name: profile?.full_name || profile?.email || 'Military Helper user',
-          };
-        });
-        setJobs(mapped);
-      } else {
+      if (error) {
+        console.error('Failed to load jobs', error);
         setJobs(sampleJobs);
+      } else {
+        setJobs(data as DisplayJob[]);
       }
 
       setLoading(false);
@@ -161,47 +161,48 @@ export default function JobsPage() {
     value ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-[#0b0f18] text-[#e6d9bd]">
       <Navigation />
 
       <main className="flex-1">
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#1e3a5f] to-[#2a4a6f] text-white py-12">
-          <div className="pointer-events-none absolute inset-0 opacity-80 bg-[radial-gradient(circle_at_15%_25%,rgba(244,208,63,0.28),transparent_35%),radial-gradient(circle_at_85%_15%,rgba(255,255,255,0.18),transparent_35%),radial-gradient(circle_at_50%_90%,rgba(15,31,51,0.55),transparent_40%)] bg-[length:160%_160%] animate-gradient-move" />
-          <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -left-10 -top-16 h-52 w-52 rounded-full bg-gradient-to-br from-[#d4af37] to-[#f4d03f] blur-3xl opacity-70 animate-float" />
-            <div className="absolute right-0 top-6 h-60 w-60 rounded-full bg-gradient-to-br from-white/40 via-transparent to-[#d4af37]/25 blur-3xl opacity-70 animate-float" />
+        <section className="relative overflow-hidden text-[#f1df9c] py-12">
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0f1c16] via-[#0f1c16] to-[#0b0f18]" />
+            <div className="absolute inset-0 opacity-35 mix-blend-overlay bg-[radial-gradient(circle_at_18%_22%,rgba(211,180,92,0.2),transparent_32%),radial-gradient(circle_at_80%_12%,rgba(33,71,111,0.2),transparent_30%),radial-gradient(circle_at_54%_88%,rgba(183,50,57,0.16),transparent_42%)]" />
+            <div className="absolute inset-0 opacity-25 bg-[linear-gradient(120deg,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(-120deg,rgba(202,163,93,0.07)_1px,transparent_1px)] bg-[length:26px_26px]" />
           </div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="flex items-center justify-between mb-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-6">
+            <div className="flex items-center justify-between gap-4">
               <div>
-                <h1 className="text-4xl font-bold mb-2">Student Jobs</h1>
-                <p className="text-gray-200">Find flexible work that fits your schedule</p>
+                <p className="text-xs uppercase tracking-[0.38em] text-[#caa35d] mb-2">Tasking board</p>
+                <h1 className="text-4xl font-black leading-tight">Missions and taskings</h1>
+                <p className="text-[#e6d9bd]/80">Deploy, guard, or brief—pick up the next assignment fast.</p>
               </div>
               <Button
-                className="bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e] font-semibold"
+                className="bg-[#caa35d] text-[#0b0f18] hover:bg-[#a57c2c] font-semibold border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
                 onClick={() => router.push('/jobs/create')}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Post a Job
+                Post a task
               </Button>
             </div>
 
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50 w-5 h-5" />
                 <Input
                   type="text"
-                  placeholder="Search jobs..."
+                  placeholder="Search missions..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-12 bg-white text-gray-900 placeholder:text-gray-500"
+                  className="pl-10 h-12 bg-white/10 text-white placeholder:text-white/60 border-white/15"
                 />
               </div>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full md:w-48 h-12 bg-white text-gray-900 data-[placeholder]:text-gray-500">
+                <SelectTrigger className="w-full md:w-48 h-12 bg-white/10 text-white border-white/20 data-[placeholder]:text-white/60">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-[#0f1c16] text-[#f1df9c] border border-white/15">
                   {categories.map((cat) => (
                     <SelectItem key={cat} value={cat}>
                       {cat}
@@ -211,13 +212,13 @@ export default function JobsPage() {
               </Select>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="mb-6">
-            <p className="text-gray-600 flex items-center gap-3">
-              Showing <span className="font-semibold text-[#1e3a5f]">{filteredJobs.length}</span> jobs
-              {loading && <Loader2 className="w-4 h-4 animate-spin text-[#1e3a5f]" />}
+            <p className="text-[#d9c8a5]/80 flex items-center gap-3">
+              Showing <span className="font-semibold text-[#f1df9c]">{filteredJobs.length}</span> missions
+              {loading && <Loader2 className="w-4 h-4 animate-spin text-[#caa35d]" />}
             </p>
           </div>
 
@@ -225,71 +226,56 @@ export default function JobsPage() {
             {filteredJobs.map((job, index) => (
               <Link href={`/jobs/detail?id=${job.id}`} key={job.id}>
                 <Card
-                  className="hover:shadow-lg transition-shadow border-2 hover:border-[#d4af37] bg-white/90 backdrop-blur animate-fade-in-up h-full"
+                  className="hover:shadow-[0_18px_50px_rgba(0,0,0,0.45)] transition-all border border-[#caa35d]/35 hover:border-[#caa35d] bg-[#0f1c16]/90 backdrop-blur animate-fade-in-up h-full"
                   style={{ animationDelay: `${index * 0.05}s` }}
                 >
                   <CardHeader>
-                    <div className="flex items-start justify-between">
+                    <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <CardTitle className="text-xl text-[#1e3a5f] mb-2 line-clamp-2">{job.title}</CardTitle>
-                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                          <div className="flex items-center">
-                            <span className="font-medium">{job.user_name || 'Military Helper user'}</span>
-                            {job.user_rating && <span className="ml-2 text-[#d4af37]">★ {job.user_rating}</span>}
+                        <CardTitle className="text-xl text-[#f1df9c] mb-2 line-clamp-2">{job.title}</CardTitle>
+                        <div className="flex items-center gap-4 text-sm text-[#d9c8a5]/80 mb-3">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-[#f1df9c]">{job.user_name || 'Military Helper user'}</span>
+                            {job.user_rating && <span className="text-[#caa35d]">★ {job.user_rating}</span>}
                           </div>
-                          <span className="text-gray-400">•</span>
-                          <span>{job.posted ? formatDate(job.posted) : formatDate(job.created_at) || 'Recently posted'}</span>
+                          <span className="text-white/30">•</span>
+                          <span>{job.posted || 'Recently'}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="secondary" className="bg-white/10 text-[#f1df9c] border border-white/20">
+                            {job.category}
+                          </Badge>
+                          <Badge variant="secondary" className="bg-[#caa35d]/15 text-[#caa35d] border border-[#caa35d]/40">
+                            {job.pay_type === 'hourly' ? 'Hourly' : 'Fixed'}
+                          </Badge>
                         </div>
                       </div>
-                      <Badge className="bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e]">
-                        {job.category}
-                      </Badge>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-[#f1df9c]">
+                          {currency.format(Number(job.pay_rate))}
+                          <span className="text-sm text-[#d9c8a5]/80">/{job.pay_type === 'hourly' ? 'hr' : 'mission'}</span>
+                        </p>
+                      </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-4 overflow-hidden">
-                    <p className="text-gray-700 line-clamp-3">{job.description}</p>
-
-                    <div className="flex flex-wrap items-center gap-4 text-sm">
-                      <div className="flex items-center text-gray-600">
-                        <DollarSign className="w-4 h-4 mr-1 text-[#d4af37]" />
-                        <span className="font-semibold text-[#1e3a5f]">
-                          ${job.pay_rate}
-                        </span>
-                        <span className="ml-1">
-                          {job.pay_type === 'hourly' ? '/hr' : job.pay_type === 'fixed' ? 'total' : 'negotiable'}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center text-gray-600">
-                        <MapPin className="w-4 h-4 mr-1 text-[#d4af37]" />
+                  <CardContent className="pt-0">
+                    <div className="flex flex-wrap gap-4 text-sm text-[#d9c8a5]/80 mb-3">
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="w-4 h-4 text-[#caa35d]" />
                         {job.location}
-                      </div>
-
-                      <div className="flex items-center text-gray-600">
-                        <Clock className="w-4 h-4 mr-1 text-[#d4af37]" />
-                        {(job.status || 'open') === 'open' ? 'Open' : 'Closed'}
-                      </div>
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <Clock className="w-4 h-4 text-[#caa35d]" />
+                        {formatDate(job.created_at)}
+                      </span>
                     </div>
-
-                    <div className="mt-4 pt-4 border-t flex items-center justify-between text-sm text-gray-500">
-                      <span>Updated {formatDate(job.updated_at || job.created_at) || 'recently'}</span>
-                      <span className="text-[#1e3a5f] group-hover:text-[#d4af37]">View Details →</span>
-                    </div>
+                    <p className="text-[#d9c8a5]">{job.description}</p>
                   </CardContent>
                 </Card>
               </Link>
             ))}
           </div>
-
-          {filteredJobs.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">
-                {loading ? 'Loading jobs...' : 'No jobs found matching your criteria.'}
-              </p>
-              <p className="text-gray-400 mt-2">Try adjusting your filters or search terms.</p>
-            </div>
-          )}
-        </div>
+        </section>
       </main>
 
       <Footer />

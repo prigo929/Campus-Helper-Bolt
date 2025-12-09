@@ -8,13 +8,13 @@ import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase, type MarketplaceItem } from '@/lib/supabase';
 import { getSafeSession } from '@/lib/get-safe-session';
 
-const categories = ['All', 'Books', 'Notes', 'Exams', 'Equipment', 'Other'];
+const categories = ['All', 'Equipment', 'Gear', 'Signal', 'Medical', 'Other'];
 
 type DisplayItem = MarketplaceItem & {
   seller?: string;
@@ -29,102 +29,108 @@ const sampleItems: DisplayItem[] = [
   {
     id: '1',
     user_id: 'demo',
-    title: 'Introduction to Psychology Textbook',
-    description: 'PSY 101 textbook in excellent condition. Minimal highlighting.',
-    category: 'books',
-    price: 45,
+    title: 'AN/PRC-152 Field Radio Kit',
+    description: 'Includes spare battery, whip antenna, and throat mic. Tested and zeroed.',
+    category: 'equipment',
+    price: 1875,
     condition: 'like_new',
     status: 'available',
     created_at: sampleTimestamp,
     updated_at: sampleTimestamp,
-    seller: 'Emma Wilson',
+    seller: 'Cpl. Vega',
     seller_rating: 4.9,
     posted: '1 day ago',
   },
   {
     id: '2',
     user_id: 'demo',
-    title: 'Calculus II Complete Notes',
-    description: 'Comprehensive notes covering all chapters. Includes practice problems and solutions.',
-    category: 'notes',
-    price: 20,
+    title: 'Desert camo netting (12x12)',
+    description: 'Dust-treated netting for quick hide sites or vehicle shade.',
+    category: 'gear',
+    price: 240,
     condition: 'good',
     status: 'available',
     created_at: sampleTimestamp,
     updated_at: sampleTimestamp,
-    seller: 'James Lee',
+    seller: 'Sgt. Miller',
     seller_rating: 4.7,
     posted: '3 days ago',
   },
   {
     id: '3',
     user_id: 'demo',
-    title: 'Biology Lab Equipment Set',
-    description: 'Complete dissection kit with case. Used once, like new condition.',
-    category: 'equipment',
-    price: 35,
-    condition: 'like_new',
+    title: 'IFAK restock bundle',
+    description: 'Tourniquets, gauze, chest seals, and compression bandages. Sealed and dated.',
+    category: 'medical',
+    price: 160,
+    condition: 'new',
     status: 'available',
     created_at: sampleTimestamp,
     updated_at: sampleTimestamp,
-    seller: 'Maria Garcia',
+    seller: 'Spec. Wright',
     seller_rating: 5.0,
     posted: '1 week ago',
   },
   {
     id: '4',
     user_id: 'demo',
-    title: 'Past Exam Collection - CS 201',
-    description: 'Last 3 years of midterms and finals with solutions.',
-    category: 'exams',
-    price: 15,
-    condition: 'good',
+    title: 'Signal flare pack (IR + vis)',
+    description: 'Mixed IR/visible flares, sealed. Keep your LZ marked under NODs.',
+    category: 'signal',
+    price: 95,
+    condition: 'like_new',
     status: 'available',
     created_at: sampleTimestamp,
     updated_at: sampleTimestamp,
-    seller: 'Alex Kumar',
+    seller: 'CW3 Carter',
     seller_rating: 4.8,
     posted: '2 days ago',
   },
   {
     id: '5',
     user_id: 'demo',
-    title: 'Organic Chemistry Textbook',
-    description: 'Latest edition with access code unused. Great condition.',
-    category: 'books',
-    price: 80,
-    condition: 'new',
+    title: 'Kevlar plates (size M) – matched pair',
+    description: 'Level III+, minimal wear, inspected after last rotation.',
+    category: 'gear',
+    price: 820,
+    condition: 'good',
     status: 'available',
     created_at: sampleTimestamp,
     updated_at: sampleTimestamp,
-    seller: 'Sophie Martin',
+    seller: 'Staff Sgt. Rhodes',
     seller_rating: 4.6,
     posted: '4 days ago',
   },
   {
     id: '6',
     user_id: 'demo',
-    title: 'Graphing Calculator TI-84',
-    description: 'Works perfectly, includes case and manual.',
+    title: 'Night vision battery bank',
+    description: 'Ruggedized pack for NODs and radios; includes field cables.',
     category: 'equipment',
-    price: 60,
+    price: 260,
     condition: 'good',
     status: 'available',
     created_at: sampleTimestamp,
     updated_at: sampleTimestamp,
-    seller: 'David Chen',
+    seller: 'WO2 Han',
     seller_rating: 4.9,
     posted: '5 days ago',
   },
 ];
 
 const categoryIcons = {
-  Books: BookOpen,
-  Notes: FileText,
-  Exams: FileText,
   Equipment: Laptop,
+  Gear: Microscope,
+  Signal: FileText,
+  Medical: BookOpen,
   Other: Microscope,
 };
+
+const currency = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  maximumFractionDigits: 0,
+});
 
 export default function MarketplacePage() {
   const router = useRouter();
@@ -160,23 +166,16 @@ export default function MarketplacePage() {
 
       const { data, error } = await supabase
         .from('marketplace_items')
-        .select('id, user_id, title, description, category, price, condition, status, created_at, updated_at, profiles(full_name,email)')
+        .select('id, user_id, title, description, category, price, condition, images, status, created_at, updated_at')
+        .eq('status', 'available')
         .order('created_at', { ascending: false })
-        .limit(60);
+        .limit(24);
 
-      if (!error && data) {
-        const mapped: DisplayItem[] = data.map((item) => {
-          const profile = (item as any).profiles;
-          return {
-            ...item,
-            category_label: capitalizeCategory(item.category),
-            posted: item.created_at,
-            seller: profile?.full_name || profile?.email || 'Military Helper user',
-          };
-        });
-        setItems(mapped);
-      } else {
+      if (error) {
+        console.error('Failed to load marketplace items', error);
         setItems(sampleItems);
+      } else {
+        setItems(data as DisplayItem[]);
       }
 
       setLoading(false);
@@ -187,10 +186,9 @@ export default function MarketplacePage() {
 
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
-      const itemCategory = item.category_label || capitalizeCategory(item.category);
       const matchesCategory =
         selectedCategory === 'All' ||
-        (itemCategory || '').toLowerCase() === selectedCategory.toLowerCase();
+        (item.category || '').toLowerCase() === selectedCategory.toLowerCase();
       const term = searchTerm.toLowerCase();
       const matchesSearch =
         item.title.toLowerCase().includes(term) ||
@@ -199,61 +197,49 @@ export default function MarketplacePage() {
     });
   }, [items, searchTerm, selectedCategory]);
 
-  const getConditionColor = (condition: string) => {
-    switch (condition) {
-      case 'new': return 'bg-green-100 text-green-800';
-      case 'like_new': return 'bg-blue-100 text-blue-800';
-      case 'good': return 'bg-yellow-100 text-yellow-800';
-      case 'fair': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const formatDate = (value?: string | null) =>
-    value ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
-
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-[#0b0f18] text-[#e6d9bd]">
       <Navigation />
 
       <main className="flex-1">
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#1e3a5f] to-[#2a4a6f] text-white py-12">
-          <div className="pointer-events-none absolute inset-0 opacity-80 bg-[radial-gradient(circle_at_15%_25%,rgba(244,208,63,0.28),transparent_35%),radial-gradient(circle_at_85%_15%,rgba(255,255,255,0.18),transparent_35%),radial-gradient(circle_at_50%_90%,rgba(15,31,51,0.55),transparent_40%)] bg-[length:160%_160%] animate-gradient-move" />
-          <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -left-10 -top-16 h-52 w-52 rounded-full bg-gradient-to-br from-[#d4af37] to-[#f4d03f] blur-3xl opacity-70 animate-float" />
-            <div className="absolute right-0 top-6 h-60 w-60 rounded-full bg-gradient-to-br from-white/40 via-transparent to-[#d4af37]/25 blur-3xl opacity-70 animate-float" />
+        <section className="relative overflow-hidden text-[#f1df9c] py-12">
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0f1c16] via-[#0f1c16] to-[#0b0f18]" />
+            <div className="absolute inset-0 opacity-35 mix-blend-overlay bg-[radial-gradient(circle_at_18%_22%,rgba(211,180,92,0.2),transparent_32%),radial-gradient(circle_at_80%_12%,rgba(33,71,111,0.2),transparent_30%),radial-gradient(circle_at_54%_88%,rgba(183,50,57,0.16),transparent_42%)]" />
+            <div className="absolute inset-0 opacity-25 bg-[linear-gradient(120deg,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(-120deg,rgba(202,163,93,0.07)_1px,transparent_1px)] bg-[length:26px_26px]" />
           </div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="flex items-center justify-between mb-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-6">
+            <div className="flex items-center justify-between gap-4">
               <div>
-                <h1 className="text-4xl font-bold mb-2">Marketplace</h1>
-                <p className="text-gray-200">Buy and sell study materials and equipment</p>
+                <p className="text-xs uppercase tracking-[0.38em] text-[#caa35d] mb-2">Supply exchange</p>
+                <h1 className="text-4xl font-black leading-tight">Swap gear and kit</h1>
+                <p className="text-[#e6d9bd]/80">Trade radios, armor, med gear, and signal kits with trusted peers.</p>
               </div>
               <Button
-                className="bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e] font-semibold"
+                className="bg-[#caa35d] text-[#0b0f18] hover:bg-[#a57c2c] font-semibold border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
                 onClick={() => router.push('/marketplace/create')}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                List Item
+                List gear
               </Button>
             </div>
 
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50 w-5 h-5" />
                 <Input
                   type="text"
-                  placeholder="Search items..."
+                  placeholder="Search supply..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-12 bg-white text-gray-900 placeholder:text-gray-500"
+                  className="pl-10 h-12 bg-white/10 text-white placeholder:text-white/60 border-white/15"
                 />
               </div>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full md:w-48 h-12 bg-white text-gray-900 data-[placeholder]:text-gray-500">
+                <SelectTrigger className="w-full md:w-48 h-12 bg-white/10 text-white border-white/20 data-[placeholder]:text-white/60">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-[#0f1c16] text-[#f1df9c] border border-white/15">
                   {categories.map((cat) => (
                     <SelectItem key={cat} value={cat}>
                       {cat}
@@ -263,75 +249,61 @@ export default function MarketplacePage() {
               </Select>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="mb-6">
-            <p className="text-gray-600 flex items-center gap-3">
-              Showing <span className="font-semibold text-[#1e3a5f]">{filteredItems.length}</span> items
-              {loading && <Loader2 className="w-4 h-4 animate-spin text-[#1e3a5f]" />}
+            <p className="text-[#d9c8a5]/80 flex items-center gap-3">
+              Showing <span className="font-semibold text-[#f1df9c]">{filteredItems.length}</span> listings
+              {loading && <Loader2 className="w-4 h-4 animate-spin text-[#caa35d]" />}
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredItems.map((item, index) => {
-              const categoryKey = (item.category_label || item.category || 'Other') as keyof typeof categoryIcons;
-              const IconComponent = categoryIcons[categoryKey] || Microscope;
+              const CategoryIcon = categoryIcons[capitalizeCategory(item.category) as keyof typeof categoryIcons] || BookOpen;
+
               return (
-                <Link href={`/marketplace/detail?id=${item.id}`} key={item.id}>
-                  <Card
-                    className="hover:shadow-lg transition-all border-2 hover:border-[#d4af37] flex flex-col bg-white/90 backdrop-blur animate-fade-in-up h-full"
-                    style={{ animationDelay: `${index * 0.05}s` }}
-                  >
-                    <CardContent className="p-6 flex-1 overflow-hidden">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="w-12 h-12 bg-[#f0f0f0] rounded-lg flex items-center justify-center">
-                          <IconComponent className="w-6 h-6 text-[#1e3a5f]" />
-                        </div>
-                        <Badge className="bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2e]">
-                          {item.category_label || item.category}
-                        </Badge>
+                <Card
+                  key={item.id}
+                  className="hover:shadow-[0_18px_50px_rgba(0,0,0,0.45)] transition-all border border-[#caa35d]/35 hover:border-[#caa35d] bg-[#0f1c16]/90 backdrop-blur animate-fade-in-up h-full"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+                    <div className="space-y-1">
+                      <CardTitle className="text-xl text-[#f1df9c] line-clamp-2">{item.title}</CardTitle>
+                      <div className="flex items-center gap-2 text-sm text-[#d9c8a5]/80">
+                        <CategoryIcon className="w-4 h-4 text-[#caa35d]" />
+                        <span className="capitalize">{item.category}</span>
+                        <span className="text-white/30">•</span>
+                        <span className="capitalize">{item.condition.replace('_', ' ')}</span>
                       </div>
-
-                      <h3 className="text-lg font-bold text-[#1e3a5f] mb-2 line-clamp-2">{item.title}</h3>
-                      <p className="text-sm text-gray-600 mb-4 line-clamp-3">{item.description}</p>
-
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="text-2xl font-bold text-[#1e3a5f]">
-                          ${item.price}
-                        </div>
-                        <Badge className={getConditionColor(item.condition)}>
-                          {item.condition.replace('_', ' ')}
-                        </Badge>
+                    </div>
+                    <Badge variant="secondary" className="bg-[#caa35d]/15 text-[#caa35d] border border-[#caa35d]/40">
+                      {item.status}
+                    </Badge>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-3">
+                    <p className="text-[#d9c8a5] line-clamp-3">{item.description}</p>
+                    <div className="flex items-center justify-between text-sm text-[#d9c8a5]/80">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-[#f1df9c]">{item.seller || 'Supply'}</span>
+                        {item.seller_rating && <span className="text-[#caa35d]">★ {item.seller_rating}</span>}
                       </div>
-
-                      <div className="flex items-center text-sm text-gray-600">
-                        <span className="font-medium">{item.seller || 'Military Helper user'}</span>
-                        {item.seller_rating && <span className="ml-2 text-[#d4af37]">★ {item.seller_rating}</span>}
-                        <span className="ml-auto text-gray-400">
-                          {item.posted ? formatDate(item.posted) : formatDate(item.created_at) || 'Recently listed'}
-                        </span>
-                      </div>
-                    </CardContent>
-
-                    <CardFooter className="p-6 pt-0">
-                      <span className="w-full text-center text-[#1e3a5f] group-hover:text-[#d4af37]">View Details</span>
-                    </CardFooter>
-                  </Card>
-                </Link>
+                      <span className="font-bold text-lg text-[#f1df9c]">{currency.format(Number(item.price))}</span>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="flex items-center justify-between text-sm text-[#d9c8a5]/80">
+                    <span>{item.posted || 'Recently'}</span>
+                    <Link href={`/marketplace?id=${item.id}`} className="text-[#caa35d] font-semibold hover:text-white hover:underline">
+                      View item
+                    </Link>
+                  </CardFooter>
+                </Card>
               );
             })}
           </div>
-
-          {filteredItems.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">
-                {loading ? 'Loading items...' : 'No items found matching your criteria.'}
-              </p>
-              <p className="text-gray-400 mt-2">Try adjusting your filters or search terms.</p>
-            </div>
-          )}
-        </div>
+        </section>
       </main>
 
       <Footer />
