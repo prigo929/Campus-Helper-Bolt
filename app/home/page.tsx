@@ -258,9 +258,9 @@ export default async function Home() {
 
             <div className="grid md:grid-cols-3 gap-6">
               <Link href="/jobs" className="block h-full">
-                <Card className="group relative overflow-hidden border border-[#caa35d]/30 hover:border-[#caa35d] transition-all duration-300 shadow-[0_20px_60px_rgba(0,0,0,0.35)] bg-white/5 backdrop-blur-sm transform hover:-translate-y-1">
+                <Card className="group relative h-full overflow-hidden border border-[#caa35d]/30 hover:border-[#caa35d] transition-all duration-300 shadow-[0_20px_60px_rgba(0,0,0,0.35)] bg-white/5 backdrop-blur-sm transform hover:-translate-y-1">
                   <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-[#caa35d]/15 via-white/20 to-[#0f1c16]/10" />
-                  <CardContent className="relative p-6 space-y-4">
+                  <CardContent className="relative p-6 space-y-4 flex-1 flex flex-col">
                     <div className="flex items-center justify-between">
                       <h3 className="text-xl font-bold text-[#f1df9c]">Priority Missions</h3>
                       <Briefcase className="w-5 h-5 text-[#caa35d]" />
@@ -312,9 +312,9 @@ export default async function Home() {
               </Link>
 
               <Link href="/forum" className="block h-full">
-                <Card className="group relative overflow-hidden border border-[#caa35d]/30 hover:border-[#caa35d] transition-all duration-300 shadow-[0_20px_60px_rgba(0,0,0,0.35)] bg-white/5 backdrop-blur-sm transform hover:-translate-y-1">
+                <Card className="group relative h-full overflow-hidden border border-[#caa35d]/30 hover:border-[#caa35d] transition-all duration-300 shadow-[0_20px_60px_rgba(0,0,0,0.35)] bg-white/5 backdrop-blur-sm transform hover:-translate-y-1">
                   <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-[#caa35d]/15 via-white/20 to-[#0f1c16]/10" />
-                  <CardContent className="relative p-6 space-y-4">
+                  <CardContent className="relative p-6 space-y-4 flex-1 flex flex-col">
                     <div className="flex items-center justify-between">
                       <h3 className="text-xl font-bold text-[#f1df9c]">Briefings</h3>
                       <MessageSquare className="w-5 h-5 text-[#caa35d]" />
