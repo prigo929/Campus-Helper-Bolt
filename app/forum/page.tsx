@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase, type ForumPost } from '@/lib/supabase';
 import { getSafeSession } from '@/lib/get-safe-session';
 
-const categories = ['All', 'Ops', 'Intel', 'Logistics', 'Support', 'Other'];
+const categories = ['All', 'General', 'Academic', 'Events', 'Housing', 'Other'];
 
 type DisplayPost = ForumPost & {
   user_name?: string;
@@ -34,7 +34,7 @@ const samplePosts: DisplayPost[] = [
     user_id: 'demo',
     title: 'Best dust-off LZ near Objective Falcon?',
     content: 'Need a flat zone within 5km, low dunes. Anyone flown it recently at night?',
-    category: 'ops',
+    category: 'general',
     user_name: 'Lt. Hayes',
     user_rating: 4.7,
     views: 245,
@@ -49,7 +49,7 @@ const samplePosts: DisplayPost[] = [
     user_id: 'demo',
     title: 'Intel push for tonight',
     content: 'Need HUMINT + SIGINT rollup for 2100 brief. Any fresh hits on the river crossing?',
-    category: 'intel',
+    category: 'academic',
     user_name: 'CWO Rios',
     user_rating: 4.9,
     views: 189,
@@ -64,7 +64,7 @@ const samplePosts: DisplayPost[] = [
     user_id: 'demo',
     title: 'Need pallets and a forklift for inbound ammo',
     content: 'Class V arriving 1700. Need two pallets cleared and a driver staged at Bay 3.',
-    category: 'logistics',
+    category: 'events',
     user_name: 'Supply Sgt.',
     user_rating: 5.0,
     views: 156,
@@ -79,7 +79,7 @@ const samplePosts: DisplayPost[] = [
     user_id: 'demo',
     title: 'FOB maintenance crew swap',
     content: 'Swapping teams for generator PMCS. Need one electrician and one HVAC tech.',
-    category: 'support',
+    category: 'other',
     user_name: 'Ops Desk',
     user_rating: 4.8,
     views: 203,
@@ -94,7 +94,7 @@ const samplePosts: DisplayPost[] = [
     user_id: 'demo',
     title: 'ISR feed lagging?',
     content: 'Our ISR feed is 5s behind. Anyone else seeing latency on the TOC screens?',
-    category: 'intel',
+    category: 'academic',
     user_name: 'Capt. Wynn',
     user_rating: 4.6,
     views: 134,
@@ -109,7 +109,7 @@ const samplePosts: DisplayPost[] = [
     user_id: 'demo',
     title: 'Need extra chem lights and IR strobes',
     content: 'We burned through ours on last patrol. Can barter MRE coffee and 9-line cards.',
-    category: 'logistics',
+    category: 'events',
     user_name: 'Sgt. Brooks',
     user_rating: 4.9,
     views: 312,
