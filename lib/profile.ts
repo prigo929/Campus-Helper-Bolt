@@ -39,7 +39,7 @@ export async function ensureProfileExists(
   const fullName =
     defaults.full_name?.trim() ||
     metadata.full_name?.trim() ||
-    (resolvedEmail ? resolvedEmail.split('@')[0] : 'Campus Helper user');
+    (resolvedEmail ? resolvedEmail.split('@')[0] : 'Military Helper user');
   const university = defaults.university?.trim() || metadata.university?.trim() || 'Unknown university';
   const major = defaults.major ?? metadata.major ?? '';
   const year = defaults.year ?? metadata.year ?? '';

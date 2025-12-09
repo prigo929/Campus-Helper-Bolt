@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Desert Storm morale poster</title>
+  <desc id="desc">A bold, propaganda-inspired Desert Storm 1991 poster with silhouettes, radio grids, and mission copy.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1f2a1c" />
+      <stop offset="50%" stop-color="#0f1c16" />
+      <stop offset="100%" stop-color="#0b120e" />
+    </linearGradient>
+    <linearGradient id="stripe" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f1df9c" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#caa35d" stop-opacity="0.75" />
+    </linearGradient>
+    <pattern id="grid" width="26" height="26" patternUnits="userSpaceOnUse">
+      <path d="M26 0H0V26" fill="none" stroke="#34452f" stroke-width="1" />
+    </pattern>
+    <filter id="noise" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="2" />
+      <feColorMatrix type="saturate" values="0" />
+      <feComponentTransfer>
+        <feFuncR type="linear" slope="0.18" />
+        <feFuncG type="linear" slope="0.18" />
+        <feFuncB type="linear" slope="0.18" />
+      </feComponentTransfer>
+      <feBlend in2="SourceGraphic" mode="soft-light" />
+    </filter>
+  </defs>
+
+  <rect width="1200" height="720" fill="url(#bg)" />
+  <rect width="1200" height="720" fill="url(#grid)" opacity="0.35" />
+  <rect x="-40" y="520" width="1280" height="260" fill="#2c3b29" />
+  <rect x="-40" y="520" width="1280" height="22" fill="url(#stripe)" />
+
+  <g transform="translate(120 220)" fill="#f1df9c" opacity="0.7">
+    <path d="M0 120 Q220 50 420 120 T840 120 L840 200 L0 200 Z" />
+  </g>
+
+  <g fill="#0b120e">
+    <path d="M160 470 h120 l-20 -120 h-80 z" opacity="0.8" />
+    <path d="M860 470 h120 l-12 -100 h-96 z" opacity="0.7" />
+  </g>
+
+  <g fill="#f1df9c" opacity="0.92">
+    <rect x="180" y="140" width="240" height="22" />
+    <rect x="180" y="180" width="260" height="10" />
+    <rect x="180" y="200" width="230" height="10" />
+    <rect x="760" y="140" width="250" height="22" />
+  </g>
+
+  <g fill="#caa35d" opacity="0.8">
+    <polygon points="520,180 640,210 580,214 564,240 512,230" />
+    <polygon points="720,150 860,182 802,186 784,210 726,198" />
+  </g>
+
+  <g fill="#b66b2e" opacity="0.9">
+    <rect x="520" y="112" width="54" height="10" />
+    <rect x="540" y="122" width="16" height="60" />
+  </g>
+
+  <g fill="#f1df9c" opacity="0.7">
+    <circle cx="980" cy="110" r="48" />
+    <path d="M960 108 h40 v26 h-40 z" fill="#0f1c16" />
+  </g>
+
+  <g fill="#caa35d" opacity="0.65">
+    <rect x="110" y="300" width="28" height="110" />
+    <rect x="150" y="310" width="16" height="98" />
+    <rect x="190" y="320" width="12" height="88" />
+  </g>
+
+  <g fill="#f1df9c" opacity="0.8">
+    <rect x="280" y="490" width="640" height="10" />
+    <rect x="280" y="508" width="640" height="6" />
+  </g>
+
+  <rect x="160" y="530" width="880" height="140" fill="#0f1c16" opacity="0.75" stroke="#caa35d" stroke-width="4" />
+  <text x="200" y="600" font-family="Rajdhani, 'Segoe UI', sans-serif" font-size="54" font-weight="700" letter-spacing="11" fill="#f1df9c">
+    HOLD THE LINE — DESERT STORM 1991
+  </text>
+  <text x="200" y="642" font-family="Rajdhani, 'Segoe UI', sans-serif" font-size="24" font-weight="600" letter-spacing="6" fill="#caa35d">
+    SUPPORT THE FORCE · UNITED STATES · COALITION RESOLVE
+  </text>
+
+  <rect width="1200" height="720" fill="transparent" filter="url(#noise)" opacity="0.28" />
+</svg>

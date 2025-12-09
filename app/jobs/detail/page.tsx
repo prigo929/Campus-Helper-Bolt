@@ -54,7 +54,7 @@ function JobDetailContent() {
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [poster, setPoster] = useState('Campus Helper user');
+  const [poster, setPoster] = useState('Military Helper user');
   const [posterId, setPosterId] = useState<string | null>(null);
   const [posterEmail, setPosterEmail] = useState<string | null>(null);
   const [reviews, setReviews] = useState<Rating[]>([]);
@@ -142,7 +142,7 @@ function JobDetailContent() {
       } else {
         setJob(data);
         const profile = (data as any).profiles;
-        setPoster(profile?.full_name || profile?.email || 'Campus Helper user');
+        setPoster(profile?.full_name || profile?.email || 'Military Helper user');
         setPosterId(data.user_id || null);
         setPosterEmail(profile?.email || null);
         setRatingSummary({ rating: profile?.rating, total_ratings: profile?.total_ratings });

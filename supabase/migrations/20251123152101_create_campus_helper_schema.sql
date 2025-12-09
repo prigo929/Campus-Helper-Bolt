@@ -1,5 +1,5 @@
 /*
-  # Campus Helper Platform Schema
+  # Military Helper Platform Schema
 
   1. New Tables
     - `profiles` - User profiles with ratings

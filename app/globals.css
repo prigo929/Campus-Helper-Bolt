@@ -6,6 +6,14 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  --mh-ink: #0f1c16;
+  --mh-olive: #1f2a1c;
+  --mh-field: #2c3b29;
+  --mh-brass: #caa35d;
+  --mh-brass-strong: #a57c2c;
+  --mh-sand: #d9c8a5;
+  --mh-sheen: #f1df9c;
+  --mh-rust: #b66b2e;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -78,6 +86,23 @@
   }
   body {
     @apply bg-background text-foreground;
+    background: radial-gradient(circle at 12% 18%, rgba(202, 163, 93, 0.12), transparent 32%),
+      radial-gradient(circle at 80% 6%, rgba(182, 107, 46, 0.08), transparent 28%),
+      radial-gradient(circle at 60% 82%, rgba(52, 69, 47, 0.18), transparent 42%),
+      linear-gradient(120deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(-120deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      var(--mh-ink);
+    color: var(--mh-sand);
+    font-family: var(--font-body), system-ui, -apple-system, sans-serif;
+    letter-spacing: 0.01em;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading), var(--font-body), system-ui, sans-serif;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
 }
 
@@ -110,4 +135,99 @@
 
 .animate-chat-pop {
   animation: chatPop 0.4s ease-out;
+}
+
+@layer base {
+  .bg-\[\#1e3a5f\],
+  .hover\:bg-\[\#1e3a5f\]:hover {
+    background-color: var(--mh-field) !important;
+  }
+
+  .bg-\[\#2a4a6f\],
+  .hover\:bg-\[\#2a4a6f\]:hover {
+    background-color: #34452f !important;
+  }
+
+  .text-\[\#1e3a5f\],
+  .hover\:text-\[\#1e3a5f\]:hover {
+    color: var(--mh-field) !important;
+  }
+
+  .border-\[\#1e3a5f\] {
+    border-color: var(--mh-field) !important;
+  }
+
+  .from-\[\#1e3a5f\] {
+    --tw-gradient-from: var(--mh-field) var(--tw-gradient-from-position, 0%);
+    --tw-gradient-to: rgb(44 59 41 / 0) var(--tw-gradient-to-position, 100%);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  }
+
+  .via-\[\#1e3a5f\] {
+    --tw-gradient-to: rgb(44 59 41 / 0) var(--tw-gradient-to-position, 100%);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--mh-field) var(--tw-gradient-via-position, 50%), var(--tw-gradient-to);
+  }
+
+  .to-\[\#1e3a5f\] {
+    --tw-gradient-to: var(--mh-field) var(--tw-gradient-to-position, 100%);
+  }
+
+  .from-\[\#2a4a6f\] {
+    --tw-gradient-from: #34452f var(--tw-gradient-from-position, 0%);
+    --tw-gradient-to: rgb(52 69 47 / 0) var(--tw-gradient-to-position, 100%);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  }
+
+  .via-\[\#2a4a6f\] {
+    --tw-gradient-to: rgb(52 69 47 / 0) var(--tw-gradient-to-position, 100%);
+    --tw-gradient-stops: var(--tw-gradient-from), #34452f var(--tw-gradient-via-position, 50%), var(--tw-gradient-to);
+  }
+
+  .to-\[\#2a4a6f\] {
+    --tw-gradient-to: #34452f var(--tw-gradient-to-position, 100%);
+  }
+
+  .bg-\[\#d4af37\],
+  .hover\:bg-\[\#d4af37\]:hover {
+    background-color: var(--mh-brass) !important;
+  }
+
+  .text-\[\#d4af37\],
+  .hover\:text-\[\#d4af37\]:hover {
+    color: var(--mh-brass) !important;
+  }
+
+  .border-\[\#d4af37\] {
+    border-color: var(--mh-brass) !important;
+  }
+
+  .from-\[\#d4af37\] {
+    --tw-gradient-from: var(--mh-brass) var(--tw-gradient-from-position, 0%);
+    --tw-gradient-to: rgb(202 163 93 / 0) var(--tw-gradient-to-position, 100%);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  }
+
+  .via-\[\#d4af37\] {
+    --tw-gradient-to: rgb(202 163 93 / 0) var(--tw-gradient-to-position, 100%);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--mh-brass) var(--tw-gradient-via-position, 50%), var(--tw-gradient-to);
+  }
+
+  .to-\[\#d4af37\] {
+    --tw-gradient-to: var(--mh-brass) var(--tw-gradient-to-position, 100%);
+  }
+
+  .bg-\[\#c19b2e\],
+  .hover\:bg-\[\#c19b2e\]:hover {
+    background-color: var(--mh-brass-strong) !important;
+  }
+
+  .text-\[\#c19b2e\],
+  .hover\:text-\[\#c19b2e\]:hover {
+    color: var(--mh-brass-strong) !important;
+  }
+
+  .bg-\[\#f4d03f\],
+  .hover\:bg-\[\#f4d03f\]:hover {
+    background-color: var(--mh-sheen) !important;
+  }
 }

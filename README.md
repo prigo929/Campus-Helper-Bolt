@@ -1,19 +1,19 @@
-# 🎓 Campus Helper
+# 🪖 Military Helper
  
 [![Deploy](https://img.shields.io/github/deployments/prigo929/Campus-Helper-Bolt/production?label=vercel&logo=vercel)](https://campus-helper-bolt.vercel.app)
 ![TypeScript](https://img.shields.io/badge/language-Typescript-blue?logo=typescript)
 ![Next.js](https://img.shields.io/badge/framework-Next.js-black?logo=next.js)
 ![Supabase](https://img.shields.io/badge/backend-Supabase-3ECF8E?logo=supabase)
 
-Campus Helper is a full-stack web platform for university students to:
+Military Helper is a full-stack, Desert Storm-inspired platform for crews to:
 
-- Find and post part-time jobs and micro-tasks  
-- Buy and sell study materials (books, notes, devices)  
-- Join campus discussion forums  
-- Chat with other students in (near) real time  
-- Get smart help from an integrated **AI assistant**  
+- Spin up and accept missions  
+- Exchange supply and gear  
+- Share field briefings and chatter  
+- Coordinate with teammates in real time  
+- Get help from an integrated **Military Helper AI**  
 
-It started as a university project, but the goal is to build it with **production-style architecture** using **Next.js (App Router)**, **TypeScript**, **Supabase**, **Tailwind CSS + shadcn/ui**, and **Vercel**, following a **Scrum** workflow in **Jira**.
+The base is still Next.js (App Router) + TypeScript + Supabase + Tailwind + shadcn/ui + Vercel, originally built as a campus tool and now re-skinned for military use. Legacy feature descriptions below still apply to the core functionality.
 
 ---
 
@@ -91,7 +91,7 @@ It started as a university project, but the goal is to build it with **productio
   - Unified search results view, grouped by content type
   - Basic highlighting/structure so users understand where the match came from
 
-- **AI Assistant – “Campus Helper AI”**
+- **AI Assistant – “Military Helper AI”**
   - Integrated AI assistant inside the app
   - Capabilities:
     - Suggesting jobs or materials based on user interests / queries

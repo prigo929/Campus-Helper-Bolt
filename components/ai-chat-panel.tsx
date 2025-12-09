@@ -61,7 +61,7 @@ export function AiChatPanel() {
           <div>
             <CardTitle className="flex items-center gap-2 text-[#1e3a5f]">
               <Sparkles className="w-5 h-5 text-[#d4af37]" />
-              Campus Helper AI
+              Military Helper AI
             </CardTitle>
             <p className="text-sm text-gray-600">Powered by the Next.js AI SDK for quick, focused answers.</p>
           </div>
@@ -131,7 +131,7 @@ export function AiChatPanel() {
                       </div>
                       <div className="space-y-1">
                         <p className="text-xs font-semibold uppercase tracking-wide opacity-80">
-                          {isUser ? 'You' : 'Campus Helper AI'}
+                          {isUser ? 'You' : 'Military Helper AI'}
                         </p>
                         <p className="whitespace-pre-wrap leading-relaxed">{text || '...'}</p>
                       </div>

@@ -320,7 +320,7 @@ function ConversationPageContent() {
           body: m.body,
           sender_id: m.sender_id,
           created_at: m.created_at,
-          author: (m as any).profiles?.full_name || (m as any).profiles?.email || 'Campus Helper user',
+          author: (m as any).profiles?.full_name || (m as any).profiles?.email || 'Military Helper user',
         })) || [];
       setMessages(mapped);
       setLoading(false);
@@ -342,7 +342,7 @@ function ConversationPageContent() {
                 const author =
                   newMessage.sender_id === currentUserId
                     ? 'You'
-                    : newMessage.profiles?.full_name || newMessage.profiles?.email || 'Campus Helper user';
+                    : newMessage.profiles?.full_name || newMessage.profiles?.email || 'Military Helper user';
                 return [
                   ...prev,
                   {
@@ -690,7 +690,7 @@ function ConversationPageContent() {
                             onClick={() => startConversation(profile)}
                             className="w-full rounded-md border border-gray-200 px-3 py-2 text-left text-sm hover:bg-gray-50"
                           >
-                            <p className="font-semibold text-[#1e3a5f]">{profile.full_name || 'Campus Helper user'}</p>
+                            <p className="font-semibold text-[#1e3a5f]">{profile.full_name || 'Military Helper user'}</p>
                             <p className="text-xs text-gray-600">{profile.email}</p>
                           </button>
                         ))}

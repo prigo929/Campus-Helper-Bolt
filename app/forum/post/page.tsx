@@ -86,7 +86,7 @@ function ForumDetailPageContent() {
   const [post, setPost] = useState<ForumPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [author, setAuthor] = useState('Campus Helper user');
+  const [author, setAuthor] = useState('Military Helper user');
   const [authorId, setAuthorId] = useState<string | null>(null);
   const [comments, setComments] = useState<ThreadedComment[]>([]);
   const [commentLookup, setCommentLookup] = useState<Record<string, FlatComment>>({});
@@ -143,7 +143,7 @@ function ForumDetailPageContent() {
         created_at: c.created_at,
         user_id: c.user_id,
         parent_id: (c as any).parent_id || null,
-        author: (c as any).profiles?.full_name || (c as any).profiles?.email || 'Campus Helper user',
+        author: (c as any).profiles?.full_name || (c as any).profiles?.email || 'Military Helper user',
       })) || [];
 
     setCommentLookup(
@@ -195,7 +195,7 @@ function ForumDetailPageContent() {
       } else {
         setPost(data);
         const profile = (data as any).profiles;
-        setAuthor(profile?.full_name || profile?.email || 'Campus Helper user');
+        setAuthor(profile?.full_name || profile?.email || 'Military Helper user');
         setAuthorId(data.user_id || null);
         const currentViews = data.views ?? 0;
         setViews(currentViews);

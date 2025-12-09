@@ -140,7 +140,7 @@ export default function SearchPage() {
               Global Search
             </div>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-[#1e3a5f]">Find anything on Campus Helper</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-[#1e3a5f]">Find anything on Military Helper</h1>
           <p className="text-lg text-gray-600">
             Search across jobs, marketplace listings, and forum posts from one place.
           </p>

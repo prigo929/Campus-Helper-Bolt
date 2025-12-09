@@ -4,8 +4,8 @@ import { Footer } from '@/components/footer';
 
 const sections = [
   {
-    title: 'Using Campus Helper',
-    body: 'Campus Helper is designed for students and campus partners. By using the platform you confirm you are able to enter agreements in your region and will follow your institution’s code of conduct.',
+    title: 'Using Military Helper',
+    body: 'Military Helper is designed for students and campus partners. By using the platform you confirm you are able to enter agreements in your region and will follow your institution’s code of conduct.',
   },
   {
     title: 'Posts and listings',
@@ -13,7 +13,7 @@ const sections = [
   },
   {
     title: 'Payments and responsibilities',
-    body: 'Unless otherwise noted, payments and agreements happen directly between users. Campus Helper is not a party to these agreements and does not guarantee payment or performance. Always document what you agree to.',
+    body: 'Unless otherwise noted, payments and agreements happen directly between users. Military Helper is not a party to these agreements and does not guarantee payment or performance. Always document what you agree to.',
   },
   {
     title: 'Safety and conduct',
@@ -21,7 +21,7 @@ const sections = [
   },
   {
     title: 'Content rights',
-    body: 'You retain ownership of the content you share and grant Campus Helper a license to display it on the platform so others can discover your posts and listings.',
+    body: 'You retain ownership of the content you share and grant Military Helper a license to display it on the platform so others can discover your posts and listings.',
   },
   {
     title: 'Ending or changing the service',
@@ -30,7 +30,7 @@ const sections = [
 ];
 
 export const metadata = {
-  title: 'Terms of Service | Campus Helper',
+  title: 'Terms of Service | Military Helper',
 };
 
 export default function TermsPage() {
@@ -47,7 +47,7 @@ export default function TermsPage() {
           </div>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <p className="uppercase text-sm tracking-widest text-[#f4d03f] font-semibold mb-2">Terms of Service</p>
-            <h1 className="text-4xl font-bold mb-3">Rules for using Campus Helper</h1>
+            <h1 className="text-4xl font-bold mb-3">Rules for using Military Helper</h1>
             <p className="text-lg text-gray-200 max-w-3xl">
               Please read these terms so you know what is expected when posting jobs, selling materials, or taking part in discussions.
             </p>

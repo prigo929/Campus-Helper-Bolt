@@ -8,8 +8,8 @@ const contactOptions = [
   {
     title: 'Email support',
     description: 'Send details, links, and screenshots so we can troubleshoot quickly.',
-    value: 'support@campushelper.com',
-    href: 'mailto:support@campushelper.com',
+    value: 'support@militaryhelper.com',
+    href: 'mailto:support@militaryhelper.com',
     icon: Mail,
   },
   {
@@ -29,7 +29,7 @@ const contactOptions = [
 ];
 
 export const metadata = {
-  title: 'Contact Us | Campus Helper',
+  title: 'Contact Us | Military Helper',
 };
 
 export default function ContactPage() {
@@ -52,7 +52,7 @@ export default function ContactPage() {
             <p className="uppercase text-sm tracking-widest text-[#f4d03f] font-semibold mb-2">Contact</p>
             <h1 className="text-4xl font-bold mb-3">We are here to help</h1>
             <p className="text-lg text-gray-200 max-w-3xl">
-              Reach the Campus Helper team for account support, safety concerns, or feedback on how we can improve.
+              Reach the Military Helper team for account support, safety concerns, or feedback on how we can improve.
             </p>
           </div>
         </section>

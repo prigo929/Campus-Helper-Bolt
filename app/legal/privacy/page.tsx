@@ -17,7 +17,7 @@ const sections = [
   },
   {
     title: 'Retention',
-    body: 'Content you post stays visible until you remove it or mark it complete. We retain account information as long as needed to operate Campus Helper and meet legal or security obligations.',
+    body: 'Content you post stays visible until you remove it or mark it complete. We retain account information as long as needed to operate Military Helper and meet legal or security obligations.',
   },
   {
     title: 'Your choices',
@@ -26,7 +26,7 @@ const sections = [
 ];
 
 export const metadata = {
-  title: 'Privacy Policy | Campus Helper',
+  title: 'Privacy Policy | Military Helper',
 };
 
 export default function PrivacyPage() {
@@ -45,7 +45,7 @@ export default function PrivacyPage() {
             <p className="uppercase text-sm tracking-widest text-[#f4d03f] font-semibold mb-2">Privacy</p>
             <h1 className="text-4xl font-bold mb-3">How we handle your data</h1>
             <p className="text-lg text-gray-200 max-w-3xl">
-              This summary explains what we collect and how we keep your information safe while you use Campus Helper.
+              This summary explains what we collect and how we keep your information safe while you use Military Helper.
             </p>
           </div>
         </section>

@@ -88,7 +88,7 @@ const demos = [
     email: 'admin@campushelper.test',
     password: 'AdminDemo1!',
     full_name: 'Campus Admin',
-    university: 'Campus Helper',
+    university: 'Military Helper',
     major: 'Platform Ops',
     year: '—',
     bio: 'Platform admin account for moderation and cleanup.',

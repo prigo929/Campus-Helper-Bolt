@@ -38,7 +38,7 @@ const tips = [
 ];
 
 export const metadata = {
-  title: 'Safety Tips | Campus Helper',
+  title: 'Safety Tips | Military Helper',
 };
 
 export default function SafetyTipsPage() {
@@ -61,7 +61,7 @@ export default function SafetyTipsPage() {
             <p className="uppercase text-sm tracking-widest text-[#f4d03f] font-semibold mb-2">Safety</p>
             <h1 className="text-4xl font-bold mb-3">Stay safe on and off campus</h1>
             <p className="text-lg text-gray-200 max-w-3xl">
-              Use these quick checks whenever you post, buy, or meet with other students on Campus Helper.
+              Use these quick checks whenever you post, buy, or meet with other students on Military Helper.
             </p>
           </div>
         </section>

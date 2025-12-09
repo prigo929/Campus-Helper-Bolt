@@ -54,7 +54,7 @@ function MarketplaceDetailContent() {
   const [item, setItem] = useState<MarketplaceItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [seller, setSeller] = useState('Campus Helper user');
+  const [seller, setSeller] = useState('Military Helper user');
   const [sellerId, setSellerId] = useState<string | null>(null);
   const [sellerEmail, setSellerEmail] = useState<string | null>(null);
   const [reviews, setReviews] = useState<Rating[]>([]);
@@ -142,7 +142,7 @@ function MarketplaceDetailContent() {
       } else {
         setItem(data);
         const profile = (data as any).profiles;
-        setSeller(profile?.full_name || profile?.email || 'Campus Helper user');
+        setSeller(profile?.full_name || profile?.email || 'Military Helper user');
         setSellerId(data.user_id || null);
         setSellerEmail(profile?.email || null);
         setRatingSummary({ rating: profile?.rating, total_ratings: profile?.total_ratings });

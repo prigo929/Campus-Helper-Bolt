@@ -30,7 +30,7 @@ const faqs = [
 ];
 
 export const metadata = {
-  title: 'Help Center | Campus Helper',
+  title: 'Help Center | Military Helper',
 };
 
 export default function HelpCenterPage() {

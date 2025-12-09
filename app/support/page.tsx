@@ -19,14 +19,14 @@ const supportResources = [
   },
   {
     title: 'Contact Us',
-    description: 'Need a hand? Reach the Campus Helper team directly for support.',
+    description: 'Need a hand? Reach the Military Helper team directly for support.',
     href: '/support/contact',
     icon: Mail,
   },
 ];
 
 export const metadata = {
-  title: 'Support | Campus Helper',
+  title: 'Support | Military Helper',
 };
 
 export default function SupportPage() {
@@ -49,7 +49,7 @@ export default function SupportPage() {
             <p className="uppercase text-sm tracking-widest text-[#f4d03f] font-semibold mb-2">Support</p>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">How can we help?</h1>
             <p className="text-lg text-gray-200 max-w-3xl">
-              Browse quick resources, safety guidance, and ways to reach us. We are here to make sure Campus Helper
+              Browse quick resources, safety guidance, and ways to reach us. We are here to make sure Military Helper
               is reliable for every student.
             </p>
           </div>

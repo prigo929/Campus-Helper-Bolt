@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 const policies = [
   {
     title: 'Terms of Service',
-    description: 'Understand the rules for using Campus Helper, posting jobs, and buying or selling items.',
+    description: 'Understand the rules for using Military Helper, posting jobs, and buying or selling items.',
     href: '/legal/terms',
     icon: FileText,
   },
@@ -20,7 +20,7 @@ const policies = [
 ];
 
 export const metadata = {
-  title: 'Legal | Campus Helper',
+  title: 'Legal | Military Helper',
 };
 
 export default function LegalPage() {
@@ -37,7 +37,7 @@ export default function LegalPage() {
           </div>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <p className="uppercase text-sm tracking-widest text-[#f4d03f] font-semibold mb-2">Legal</p>
-            <h1 className="text-4xl font-bold mb-3">Policies that keep Campus Helper safe</h1>
+            <h1 className="text-4xl font-bold mb-3">Policies that keep Military Helper safe</h1>
             <p className="text-lg text-gray-200 max-w-3xl">
               Review the terms and privacy details that guide how the platform works for everyone in the campus community.
             </p>

@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Operation Desert Storm 1991 collage</title>
+  <desc id="desc">Propaganda-inspired collage with sand dunes, fast jets, and bold typography recalling U.S. Operation Desert Storm.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2c3b29" />
+      <stop offset="55%" stop-color="#1b2418" />
+      <stop offset="100%" stop-color="#0f1c16" />
+    </linearGradient>
+    <linearGradient id="dune" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d9c8a5" />
+      <stop offset="50%" stop-color="#caa35d" />
+      <stop offset="100%" stop-color="#b66b2e" />
+    </linearGradient>
+    <radialGradient id="sun" cx="28%" cy="22%" r="35%">
+      <stop offset="0%" stop-color="#f1df9c" stop-opacity="0.9" />
+      <stop offset="70%" stop-color="#f1df9c" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#f1df9c" stop-opacity="0" />
+    </radialGradient>
+    <filter id="grain" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" />
+      <feColorMatrix type="saturate" values="0" />
+      <feComponentTransfer>
+        <feFuncR type="linear" slope="0.22" />
+        <feFuncG type="linear" slope="0.22" />
+        <feFuncB type="linear" slope="0.22" />
+      </feComponentTransfer>
+      <feBlend in2="SourceGraphic" mode="soft-light" />
+    </filter>
+  </defs>
+  <rect width="1200" height="720" fill="url(#sky)" />
+  <rect width="1200" height="720" fill="url(#sun)" />
+  <path d="M-40 520 Q240 440 540 500 T1280 460 V740 H-40 Z" fill="url(#dune)" opacity="0.82" />
+  <path d="M-40 570 Q240 510 520 560 T1280 540 V740 H-40 Z" fill="#a57c2c" opacity="0.8" />
+  <path d="M-40 600 Q240 560 520 600 T1280 610 V740 H-40 Z" fill="#0f1c16" opacity="0.7" />
+
+  <g fill="#f1df9c" opacity="0.9">
+    <path d="M150 180 l120 26 -60 -10 -12 22 z" />
+    <path d="M420 150 l150 32 -70 -8 -12 22 z" />
+    <path d="M730 120 l170 38 -90 -14 -12 22 z" />
+  </g>
+
+  <g fill="#caa35d" opacity="0.6">
+    <path d="M210 240 l180 40 -70 -6 -12 26 z" />
+    <path d="M560 210 l200 44 -90 -12 -12 26 z" />
+  </g>
+
+  <g fill="none" stroke="#f1df9c" stroke-width="3" opacity="0.6">
+    <path d="M160 340 H1080" stroke-dasharray="18 12" />
+    <path d="M140 370 H1060" stroke-dasharray="8 12" />
+  </g>
+
+  <rect x="120" y="420" width="960" height="170" fill="#0f1c16" opacity="0.7" />
+  <rect x="120" y="420" width="960" height="170" fill="#0f1c16" stroke="#caa35d" stroke-width="4" opacity="0.8" />
+  <text x="150" y="488" font-family="Rajdhani, 'Segoe UI', sans-serif" font-size="56" font-weight="700" letter-spacing="12" fill="#f1df9c">
+    OPERATION DESERT STORM
+  </text>
+  <text x="150" y="540" font-family="Rajdhani, 'Segoe UI', sans-serif" font-size="24" font-weight="600" letter-spacing="8" fill="#caa35d">
+    UNITED STATES 1991 — COALITION FOR FREEDOM
+  </text>
+
+  <g fill="#b66b2e" opacity="0.75">
+    <rect x="150" y="452" width="18" height="88" />
+    <rect x="190" y="452" width="18" height="88" />
+    <rect x="230" y="452" width="18" height="88" />
+  </g>
+
+  <g fill="#caa35d" opacity="0.5">
+    <circle cx="1040" cy="160" r="32" />
+    <rect x="1020" y="200" width="48" height="14" />
+    <rect x="1020" y="220" width="48" height="14" />
+  </g>
+
+  <rect width="1200" height="720" fill="transparent" filter="url(#grain)" opacity="0.25" />
+</svg>
