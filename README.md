@@ -1,13 +1,9 @@
 # 🎓 Campus Helper
  
 [![Deploy](https://img.shields.io/github/deployments/prigo929/Campus-Helper-Bolt/production?label=vercel&logo=vercel)](https://campus-helper-bolt.vercel.app)
-
 ![TypeScript](https://img.shields.io/badge/language-Typescript-blue?logo=typescript)
-
 ![Next.js](https://img.shields.io/badge/framework-Next.js-black?logo=next.js)
-
 ![Supabase](https://img.shields.io/badge/backend-Supabase-3ECF8E?logo=supabase)
-
 ![CI](https://github.com/prigo929/Campus-Helper-Bolt/actions/workflows/ci.yml/badge.svg)
 
 
