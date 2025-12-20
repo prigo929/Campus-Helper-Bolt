@@ -4,6 +4,8 @@
 ![TypeScript](https://img.shields.io/badge/language-Typescript-blue?logo=typescript)
 ![Next.js](https://img.shields.io/badge/framework-Next.js-black?logo=next.js)
 ![Supabase](https://img.shields.io/badge/backend-Supabase-3ECF8E?logo=supabase)
+![CI](https://github.com/prigo929/Campus-Helper-Bolt/actions/workflows/ci.yml/badge.svg)
+
 
 Campus Helper is a full-stack web platform for university students to:
 
