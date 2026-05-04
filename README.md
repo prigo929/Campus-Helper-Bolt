@@ -23,27 +23,27 @@ The base is still Next.js (App Router) + TypeScript + Supabase + Tailwind + shad
 
 - **Authentication & Profiles**
   - Email / magic link (or password) login via Supabase Auth
-  - Student profile: name, faculty, study year, bio, avatar
-  - Role support: `student` (default) and `admin` (for moderation)
+  - Personnel profile: name, unit, rank/specialty, bio, avatar
+  - Role support: `user` (default) and `admin` (for moderation)
 
 - **Dashboard**
   - Authenticated home view after login
-  - Quick access to Jobs, Materials, Forum, Chat, Profile, AI Assistant
-  - Snapshot of recent activity (latest jobs/posts/messages/notifications)
+  - Quick access to Missions, Supply, Forum, Chat, Profile, AI Assistant
+  - Snapshot of recent activity (latest missions/posts/messages/notifications)
 
-- **Jobs & Tasks Marketplace**
-  - Create job/task:
+- **Missions & Taskings (Jobs)**
+  - Create mission/task:
     - title, description, category, estimated pay, optional location
-  - Browse jobs in a responsive card layout
-  - Individual job details:
+  - Browse missions in a responsive card layout
+  - Individual mission details:
     - full description, posted by, creation time
   - Sorting & basic filtering (e.g. by category, newest first)
-  - Users can show interest/apply to jobs
+  - Users can show interest/apply to missions
 
-- **Materials Marketplace**
-  - Create listings for books, notes, accessories, devices
+- **Supply & Gear Marketplace (Materials)**
+  - Create listings for equipment, supplies, notes, or gear
   - Upload images via Supabase Storage
-  - Materials list view + detail view
+  - Supplies list view + detail view
   - Contact seller via messaging
 
 - **Forum**
@@ -53,12 +53,12 @@ The base is still Next.js (App Router) + TypeScript + Supabase + Tailwind + shad
   - Sort by newest / recent activity
 
 - **Messaging**
-  - 1:1 conversations between students
-  - Started from job/material pages or profile
+  - 1:1 conversations between personnel
+  - Started from mission/supply pages or profile
   - Realtime-ish updates via Supabase Realtime
 
 - **Reporting & Moderation**
-  - Report jobs, materials, posts, comments, or users
+  - Report missions, gear, posts, comments, or users
   - Admin reports panel:
     - see item, reporter, reason, timestamp
   - Admin actions:
@@ -69,7 +69,7 @@ The base is still Next.js (App Router) + TypeScript + Supabase + Tailwind + shad
 ### Advanced Features (Implemented)
 
 - **Ratings & Reviews**
-  - Rate users after a job or transaction (e.g. when a job is completed or a material is sold)
+  - Rate users after a mission or transaction (e.g. when a mission is completed or gear is exchanged)
   - 1–5 star ratings with optional written review
   - Display average rating and reviews on user profiles
   - Ratings influence profile credibility across the app
@@ -77,7 +77,7 @@ The base is still Next.js (App Router) + TypeScript + Supabase + Tailwind + shad
 - **In-App Notifications**
   - Notification system for:
     - new messages
-    - interest/applications on your jobs
+    - interest/applications on your missions
     - comments on your forum posts
     - other relevant events
   - Notification dropdown in the UI
@@ -85,8 +85,8 @@ The base is still Next.js (App Router) + TypeScript + Supabase + Tailwind + shad
 
 - **Global Search**
   - Single search bar that can find:
-    - jobs
-    - materials
+    - missions
+    - supply/gear
     - forum posts
   - Unified search results view, grouped by content type
   - Basic highlighting/structure so users understand where the match came from
@@ -94,10 +94,10 @@ The base is still Next.js (App Router) + TypeScript + Supabase + Tailwind + shad
 - **AI Assistant – “Military Helper AI”**
   - Integrated AI assistant inside the app
   - Capabilities:
-    - Suggesting jobs or materials based on user interests / queries
+    - Suggesting missions or gear based on user interests / queries
     - Summarizing forum threads or long discussions
-    - Summarizing notes / text the user pastes
-    - Answering common campus-style questions (study tips, task ideas, etc.)
+    - Summarizing intel / text the user pastes
+    - Answering common operational questions (briefing tips, task ideas, etc.)
   - Implemented using **Next.js AI (Vercel AI SDK)** with pluggable LLM providers
 
 ---
@@ -107,7 +107,7 @@ The base is still Next.js (App Router) + TypeScript + Supabase + Tailwind + shad
 ### Frontend
 
 - **Next.js 16 (App Router)**  
-  - React 18 + TypeScript 5.2  
+  - React 19 + TypeScript 5.2  
   - Routes live under `app/...` (e.g. `app/admin/reports/page.tsx`)
 - **Tailwind CSS**
   - Config in `tailwind.config.ts`
@@ -142,8 +142,8 @@ The base is still Next.js (App Router) + TypeScript + Supabase + Tailwind + shad
 - Schema & migrations:
   - Managed via SQL migrations under `supabase/migrations/*`
   - Covers:
-    - jobs
-    - materials/marketplace
+    - missions (jobs)
+    - gear/marketplace (materials)
     - forum (posts/comments)
     - messaging (conversations/messages)
     - ratings & reviews
@@ -178,32 +178,31 @@ The base is still Next.js (App Router) + TypeScript + Supabase + Tailwind + shad
 
 ### App Structure
 
-- **App Router** entry under `src/app`:
-  - `(public)` – landing, marketing pages
-  - `(auth)` – login, register
-  - `(dashboard)` – authenticated area:
-    - `jobs/`
-    - `materials/`
-    - `forum/`
-    - `chat/`
-    - `profile/`
-    - `admin/` (reports, moderation)
-    - `ai/` or AI assistant entry point
+- **App Router** entry under `app/`:
+  - `admin/` (reports, moderation)
+  - `ai-assistant/`
+  - `forum/`
+  - `home/`
+  - `jobs/`
+  - `marketplace/`
+  - `messages/`
+  - `profile/`
+  - `sign-in/`, `sign-up/`
 
 - Layouts:
   - `app/layout.tsx` – root shell (theme, fonts, base layout)
-  - `app/(dashboard)/layout.tsx` – dashboard layout (navbar, sidebar, notifications, etc.)
+  - `app/home/layout.tsx` (and other route layouts)
 
 ### Feature Modules
 
-- `features/jobs`
-- `features/materials`
-- `features/forum`
-- `features/messaging`
-- `features/notifications`
-- `features/ratings`
-- `features/admin` / `features/reports`
-- `features/ai`
+- `app/jobs`
+- `app/marketplace`
+- `app/forum`
+- `app/messages`
+- `app/notifications` (integrated)
+- `app/profile` (ratings)
+- `app/admin` / `app/reports`
+- `app/ai-assistant`
 
 Each feature typically contains:
 
