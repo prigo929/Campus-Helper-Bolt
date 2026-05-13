@@ -9,12 +9,20 @@ import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
 import { HomeFinalCta, HomeHeroActions } from '@/components/home-auth-cta';
 
+/**
+ * Interface representing the highlighted content fetched from Supabase.
+ * Includes latest missions, marketplace items, and forum briefings.
+ */
 type SupabaseHighlights = {
   jobs: Job[];
   items: MarketplaceItem[];
   posts: ForumPost[];
 };
 
+/**
+ * Static asset configuration for the hero marquee animation.
+ * Features iconic military imagery with specialized badges.
+ */
 const HERO_IMAGES = [
   { src: '/oil-desert-storm-tanks.jpg', alt: 'Tanks in oil fires', badge: 'Armor Push' },
   { src: '/desert-ops-tank.jpg', alt: 'Desert Ops', badge: 'OPS Ready' },
@@ -34,6 +42,11 @@ const HERO_IMAGES = [
   { src: '/dave-sherrill-usa.jpg', alt: 'USA Flag', badge: 'USA' },
 ];
 
+/**
+ * Demonstration data used as a fallback when Supabase connection is unavailable
+ * or when the database tables are empty. This ensures the landing page
+ * always has representative content.
+ */
 const FALLBACK_DATA: SupabaseHighlights = {
   jobs: [
     {
@@ -115,6 +128,13 @@ const FALLBACK_DATA: SupabaseHighlights = {
   ],
 };
 
+/**
+ * Fetches mission, marketplace, and forum highlights from Supabase.
+ * Uses service role client if available for server-side pre-rendering,
+ * otherwise falls back to the public client or demo data on failure.
+ * 
+ * @returns {Promise<SupabaseHighlights>} A combined object of active theater data.
+ */
 async function loadSupabaseHighlights(): Promise<SupabaseHighlights> {
   const client =
     process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -127,6 +147,7 @@ async function loadSupabaseHighlights(): Promise<SupabaseHighlights> {
   }
 
   try {
+    // Parallel fetch for optimal performance
     const [jobsRes, itemsRes, postsRes] = await Promise.all([
       client
         .from('jobs')
@@ -168,12 +189,23 @@ async function loadSupabaseHighlights(): Promise<SupabaseHighlights> {
   }
 }
 
+/**
+ * Formatter for USD currency display, used for mission pay rates and marketplace prices.
+ */
 const currency = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
   maximumFractionDigits: 0,
 });
 
+/**
+ * The main landing page component.
+ * Implements a high-impact "Desert Storm" aesthetic with:
+ * - Animated hero marquee with military imagery
+ * - Theater Operations video background section
+ * - Real-time operations feed from Supabase
+ * - Categorized mission and supply highlights
+ */
 export default async function Home() {
   const { jobs, items, posts } = await loadSupabaseHighlights();
 
@@ -182,11 +214,13 @@ export default async function Home() {
       <Navigation />
 
       <main className="flex-1">
+        {/* Hero Section: Features a rotating marquee of military imagery */}
         <section className="relative overflow-hidden text-[#f1df9c] py-20">
           <div className="absolute inset-0">
             <div className="absolute inset-0 bg-gradient-to-b from-[#0f1c16] via-[#0f1c16] to-[#0b0f0c]" />
             <div className="absolute inset-0 opacity-45 mix-blend-overlay bg-[radial-gradient(circle_at_20%_20%,rgba(202,163,93,0.25),transparent_32%),radial-gradient(circle_at_70%_10%,rgba(182,107,46,0.16),transparent_30%),radial-gradient(circle_at_30%_80%,rgba(52,69,47,0.3),transparent_38%)]" />
-            {/* Marquee Container */}
+            
+            {/* Marquee Container: Animates imagery behind the hero text */}
             <div className="absolute top-1/2 -translate-y-1/2 -left-[10%] -right-[10%] opacity-60 rotate-[-3deg] select-none pointer-events-none">
               <div
                 className="flex w-max animate-scroll"
@@ -194,7 +228,7 @@ export default async function Home() {
                   paddingRight: '32px', // Force end padding matching item margin
                 }}
               >
-                {/* Double the images to create seamless loop */}
+                {/* Double the images to create a seamless infinite loop animation */}
                 {[...HERO_IMAGES, ...HERO_IMAGES].map((image, index) => (
                   <div
                     key={`${image.src}-${index}`}
@@ -232,6 +266,8 @@ export default async function Home() {
               <div className="animate-fade-in-up" style={{ animationDelay: '0.16s' }}>
                 <HomeHeroActions />
               </div>
+              
+              {/* Stat counters for social proof */}
               <div className="grid gap-3 sm:grid-cols-3 mt-10">
                 <div className="rounded-lg border border-[#caa35d]/30 bg-white/5 px-4 py-3 text-left">
                   <p className="text-xs uppercase tracking-[0.24em] text-[#caa35d]">Active missions</p>
@@ -250,8 +286,9 @@ export default async function Home() {
           </div>
         </section>
 
+        {/* Theater Operations Section: High-impact video background with CRT effects */}
         <section className="relative py-24 bg-[#0b0f0c] overflow-hidden">
-          {/* Decorative background elements */}
+          {/* Decorative background elements for depth */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(202,163,93,0.05),transparent_60%)]" />
           <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#caa35d]/20 to-transparent" />
 
@@ -266,14 +303,9 @@ export default async function Home() {
             </div>
 
             <div className="group relative rounded-2xl overflow-hidden border border-[#caa35d]/30 bg-[#0f1c16] shadow-[0_30px_100px_rgba(0,0,0,0.5)] w-full max-w-6xl mx-auto">
-              {/* CRT Scanline effect overlay */}
+              {/* CRT Scanline effect overlay for immersive military aesthetic */}
               <div className="pointer-events-none absolute inset-0 z-20 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-15" />
               <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-[#0b0f0c]/80 via-transparent to-transparent opacity-60" />
-
-              {/* Interaction Blocker */}
-              <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
-                {/* Optional: Add a "REC" or "LIVE" overlay here if desired, but user just asked for no interaction */}
-              </div>
 
               <div className="aspect-video w-full relative pointer-events-none">
                 <video
@@ -287,7 +319,7 @@ export default async function Home() {
                 </video>
               </div>
 
-              {/* Decorative corners */}
+              {/* Decorative HUD-style corners */}
               <div className="absolute top-0 left-0 w-16 h-16 border-l-2 border-t-2 border-[#caa35d]/60 rounded-tl-2xl pointer-events-none" />
               <div className="absolute top-0 right-0 w-16 h-16 border-r-2 border-t-2 border-[#caa35d]/60 rounded-tr-2xl pointer-events-none" />
               <div className="absolute bottom-0 left-0 w-16 h-16 border-l-2 border-b-2 border-[#caa35d]/60 rounded-bl-2xl pointer-events-none" />
@@ -296,6 +328,7 @@ export default async function Home() {
           </div>
         </section>
 
+        {/* Operations Feed: Displays the latest highlights fetched from Supabase */}
         <section className="py-16 bg-[#0f1310]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
@@ -316,6 +349,7 @@ export default async function Home() {
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
+              {/* Priority Missions Card */}
               <Link href="/jobs" className="block h-full">
                 <Card className="group relative h-full overflow-hidden border border-[#caa35d]/30 hover:border-[#caa35d] transition-all duration-300 shadow-[0_20px_60px_rgba(0,0,0,0.35)] bg-white/5 backdrop-blur-sm transform hover:-translate-y-1">
                   <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-[#caa35d]/15 via-white/20 to-[#0f1c16]/10" />
@@ -344,6 +378,7 @@ export default async function Home() {
                 </Card>
               </Link>
 
+              {/* Supply Exchange Card */}
               <Link href="/marketplace" className="block h-full">
                 <Card className="group relative overflow-hidden border border-[#caa35d]/30 hover:border-[#caa35d] transition-all duration-300 shadow-[0_20px_60px_rgba(0,0,0,0.35)] bg-white/5 backdrop-blur-sm transform hover:-translate-y-1">
                   <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-[#caa35d]/15 via-white/20 to-[#0f1c16]/10" />
@@ -370,6 +405,7 @@ export default async function Home() {
                 </Card>
               </Link>
 
+              {/* Briefings Card */}
               <Link href="/forum" className="block h-full">
                 <Card className="group relative h-full overflow-hidden border border-[#caa35d]/30 hover:border-[#caa35d] transition-all duration-300 shadow-[0_20px_60px_rgba(0,0,0,0.35)] bg-white/5 backdrop-blur-sm transform hover:-translate-y-1">
                   <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-[#caa35d]/15 via-white/20 to-[#0f1c16]/10" />
